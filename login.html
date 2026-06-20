@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
+    <link rel="manifest" href="/assets/site.webmanifest" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Flex&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Serif&display=swap" rel="stylesheet" />
+    <title>Login</title>
+    <link href="tailwind_theme/tailwind.css" rel="stylesheet" type="text/css" data-pg-name="TailwindCSS">
+    <script src="https://cdn.tailwindcss.com/" data-pg-name="TailwindCSS"></script>
+    <script defer src="js/Alpine.js" data-pg-name="AlpineJs"></script>
+</head>
+
+<body x-data="login()" class="flex items-center justify-center">
+    <div class="container mx-auto px-4">
+        <div class="mx-auto md:w-9/12 xl:w-5/12">
+            <div class="bg-white px-6 py-12 w-full sm:px-12 lg:py-16">
+                <h2 class="font-medium mb-2 text-3xl text-gray-900">Entrar</h2>
+                <form @submit.prevent="login">
+                    <div class="flex mb-4 text-sm"><span
+                            class="bg-gray-50 border border-gray-300 border-r-0 inline-flex items-center px-3 py-2 rounded-l-md text-gray-600"><svg
+                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16"
+                                height="16">
+                                <g>
+                                    <path fill="none" d="M0 0h24v24H0z"></path>
+                                    <path
+                                        d="M3 3h18a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm17 4.238l-7.928 7.1L4 7.216V19h16V7.238zM4.511 5l7.55 6.662L19.502 5H4.511z">
+                                    </path>
+                                </g>
+                            </svg></span>
+                        <input x-model="username" type="text"
+                            class="block border border-gray-300 flex-1 px-3 py-2 rounded-r-md w-full focus:appearance-none focus:border-0 focus:outline-none focus:outline-offset-0 focus:outline-pink-600"
+                            placeholder="Usuário" aria-label="username" required>
+                    </div>
+                    <div class="flex mb-4 text-sm"><span
+                            class="bg-gray-50 border border-gray-300 border-r-0 inline-flex items-center px-3 py-2 rounded-l-md text-gray-600"><svg
+                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16"
+                                height="16">
+                                <g>
+                                    <path fill="none" d="M0 0h24v24H0z"></path>
+                                    <path
+                                        d="M10.758 11.828l7.849-7.849 1.414 1.414-1.414 1.415 2.474 2.474-1.414 1.415-2.475-2.475-1.414 1.414 2.121 2.121-1.414 1.415-2.121-2.122-2.192 2.192a5.002 5.002 0 0 1-7.708 6.294 5 5 0 0 1 6.294-7.708zm-.637 6.293A3 3 0 1 0 5.88 13.88a3 3 0 0 0 4.242 4.242z">
+                                    </path>
+                                </g>
+                            </svg></span>
+                        <input x-model="password" type="password"
+                            class="appearance-none block border border-gray-300 flex-1 px-3 py-2 rounded-r-md w-full focus:appearance-none focus:border-none focus:caret-pink-600 focus:outline-offset-0 focus:outline-pink-600"
+                            placeholder="Password" aria-label="Password" required>
+                    </div>
+                    <p x-text="errorMessage" class="mb-4 text-pink-900"></p>
+                    <button
+                        class="bg-pink-600 font-medium inline-block px-6 py-2 rounded-md text-center text-white w-full hover:bg-pink-700">Entrar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="js/login.js"></script>
+</body>
+
+</html>
