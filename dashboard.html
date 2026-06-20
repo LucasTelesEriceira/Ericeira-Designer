@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png" />
+    <link rel="manifest" href="assets/site.webmanifest" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet" />
+    <title>Painel — Ericeira Designer</title>
+    <link href="tailwind_theme/tailwind.css" rel="stylesheet" type="text/css" />
+    <script defer src="js/Alpine.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        body { font-family: "Roboto", sans-serif; }
+        .nav-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .nav-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.10); }
+        .nav-card:active { transform: translateY(0); }
+    </style>
+</head>
+<body class="bg-gray-50" x-data="dashboardApp">
+    <header class="fixed inset-x-0 z-50 bg-white border-b border-gray-200 h-14 flex items-center px-4 gap-3">
+        <div class="flex items-center gap-2 min-w-0 flex-1">
+            <span class="font-bold text-pink-700 text-sm">Ericeira Designer</span>
+        </div>
+        <div class="flex items-center gap-1.5 ml-auto">
+            <div class="relative" x-data="{ avatarOpen: false }">
+                <button @click="avatarOpen = !avatarOpen"
+                    class="h-8 w-8 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center hover:bg-pink-200 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-300">
+                    E
+                </button>
+                <div x-show="avatarOpen" x-cloak @click.outside="avatarOpen = false" x-transition
+                    class="absolute right-0 top-10 bg-white rounded-xl shadow-xl border border-gray-200 py-1 w-48 z-50">
+                    <div class="px-4 py-2.5 border-b border-gray-100">
+                        <p class="text-xs font-semibold text-gray-900">Ericeira Designer</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Profissional</p>
+                    </div>
+                    <button @click="logout()"
+                        class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                        Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="min-h-screen pt-14">
+        <div class="p-4 lg:p-8 max-w-2xl mx-auto">
+            <div class="mb-8 mt-2">
+                <h1 class="text-2xl font-bold text-gray-900">Olá, Ericeira! 👋</h1>
+                <p class="text-gray-400 text-sm mt-1" x-text="todayLabel"></p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 mb-8">
+                <div class="bg-white rounded-xl p-3 border border-gray-200 text-center shadow-sm">
+                    <p class="text-2xl font-bold text-pink-600" x-text="schedulingToday.length"></p>
+                    <p class="text-xs text-gray-400 mt-0.5">hoje</p>
+                </div>
+                <div class="bg-white rounded-xl p-3 border border-gray-200 text-center shadow-sm">
+                    <p class="text-2xl font-bold text-indigo-500" x-text="schedulingTomorrow.length"></p>
+                    <p class="text-xs text-gray-400 mt-0.5">amanhã</p>
+                </div>
+                <div class="bg-white rounded-xl p-3 border border-gray-200 text-center shadow-sm">
+                    <p class="text-2xl font-bold text-emerald-500" x-text="servicesCount"></p>
+                    <p class="text-xs text-gray-400 mt-0.5">serviços</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <a href="agendamentos.html"
+                    class="nav-card bg-white rounded-2xl border border-gray-200 p-6 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-300 block">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="h-12 w-12 rounded-xl bg-pink-100 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-600" fill="currentColor" viewBox="0 0 24 24"><path d="M9 1v2h6V1h2v2h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4V1h2zm11 7H4v11h16V8zm-4.964 2.136l1.414 1.414-4.95 4.95-3.536-3.536L9.38 11.55l2.121 2.122 3.536-3.536z" /></svg>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                    </div>
+                    <h2 class="font-bold text-gray-900 text-base mb-1">Agendamentos</h2>
+                    <p class="text-xs text-gray-400 leading-relaxed mb-4">Visualize e gerencie todos os atendimentos por período.</p>
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex items-center gap-1 bg-pink-50 text-pink-700 text-xs font-semibold px-2.5 py-1 rounded-full"><span x-text="schedulingToday.length"></span> hoje</span>
+                        <span class="inline-flex items-center gap-1 bg-indigo-50 text-indigo-600 text-xs font-semibold px-2.5 py-1 rounded-full"><span x-text="schedulingTomorrow.length"></span> amanhã</span>
+                        <span x-show="schedulingOther_days.length > 0" x-cloak class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs font-semibold px-2.5 py-1 rounded-full">+<span x-text="schedulingOther_days.length"></span> futuros</span>
+                    </div>
+                </a>
+
+                <a href="servicos.html"
+                    class="nav-card bg-white rounded-2xl border border-gray-200 p-6 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-300 block">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="h-12 w-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                    </div>
+                    <h2 class="font-bold text-gray-900 text-base mb-1">Serviços</h2>
+                    <p class="text-xs text-gray-400 leading-relaxed mb-4">Cadastre e edite os serviços oferecidos com duração e valor.</p>
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded-full"><span x-text="servicesCount"></span> cadastrados</span>
+                    </div>
+                </a>
+
+                <a href="faturas.html"
+                    class="nav-card bg-white rounded-2xl border border-gray-200 p-6 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-300 sm:col-span-2 block">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="h-12 w-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2zm-4 6.586l2 2L15 15m0 0l-2-2m2 2l2 2m-2-2l-2 2m2-2l2-2" /></svg>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                    </div>
+                    <h2 class="font-bold text-gray-900 text-base mb-1">Faturas</h2>
+                    <p class="text-xs text-gray-400 leading-relaxed mb-4">Registre pagamentos e acompanhe as receitas dos atendimentos.</p>
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-xs font-semibold px-2.5 py-1 rounded-full"><span x-text="inputInvoiceCount"></span> registros</span>
+                    </div>
+                </a>
+
+                <a href="clientes.html"
+                    class="nav-card bg-white rounded-2xl border border-gray-200 p-6 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-300 block">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="h-12 w-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" /></svg>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                    </div>
+                    <h2 class="font-bold text-gray-900 text-base mb-1">Clientes</h2>
+                    <p class="text-xs text-gray-400 leading-relaxed mb-4">Histórico completo de todos os clientes.</p>
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex items-center gap-1 bg-purple-50 text-purple-700 text-xs font-semibold px-2.5 py-1 rounded-full"><span x-text="clientCount"></span> clientes</span>
+                    </div>
+                </a>
+
+                <a href="despesas.html"
+                    class="nav-card bg-white rounded-2xl border border-gray-200 p-6 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-300 block">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="h-12 w-12 rounded-xl bg-red-100 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6zm0 4h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V10zm4 4h2v6H7v-6zm4 0h2v6h-2v-6zm4 0h2v6h-2v-6z" /></svg>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                    </div>
+                    <h2 class="font-bold text-gray-900 text-base mb-1">Despesas</h2>
+                    <p class="text-xs text-gray-400 leading-relaxed mb-4">Controle de gastos e despesas do salão.</p>
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex items-center gap-1 bg-red-50 text-red-700 text-xs font-semibold px-2.5 py-1 rounded-full"><span x-text="expensesCount"></span> registros</span>
+                    </div>
+                </a>
+
+                <a href="historico-agendamentos.html"
+                    class="nav-card bg-white rounded-2xl border border-gray-200 p-6 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-300 block">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="h-12 w-12 rounded-xl bg-gray-100 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                    </div>
+                    <h2 class="font-bold text-gray-900 text-base mb-1">Histórico</h2>
+                    <p class="text-xs text-gray-400 leading-relaxed mb-4">Agendamentos concluídos e realizados.</p>
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs font-semibold px-2.5 py-1 rounded-full"><span x-text="concludedCount"></span> concluídos</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+    <script src="js/utils.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "version": "1.2.0",
+  "releaseDate": "2025-07-14",
+  "releaseNotes": [
+    "Novo menu de navegação com cards informativos",
+    "Layout da área administrativa reformulado no estilo app de gestão",
+    "Sistema de notificação de atualizações do aplicativo",
+    "Melhora na visualização dos agendamentos por período"
+  ],
+  "mandatory": false
+}

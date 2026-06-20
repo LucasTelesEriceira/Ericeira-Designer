@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="/assets/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+  <link type="image/png" href="/assets/favicon-32x32.png" rel="icon" sizes="32x32"/>
+  <link type="image/png" href="/assets/favicon-16x16.png" rel="icon" sizes="16x16"/>
+  <link href="/assets/site.webmanifest" rel="manifest"/>
+  <title>Agendamento de Serviço</title>
+  <script data-pg-name="AlpineJs" src="js/Alpine-Mask.js"></script>
+  <script data-pg-name="AlpineJs" src="js/Alpine-Collapse.js"></script>
+  <script data-pg-name="AlpineJs" src="js/Alpine.js" defer></script>
+  <link data-pg-name="TailwindCSS" type="text/css" href="tailwind_theme/tailwind.css" rel="stylesheet"/>
+  <script data-pg-name="TailwindCSS" src="https://cdn.tailwindcss.com/"></script>
+  <style>[x-cloak] { display: none !important; }</style>
+</head>
+
+<body class="bg-gray-100 font-sans text-gray-700">
+  <div class="container mx-auto py-4">
+    <h1 class="font-semibold mb-4 text-base text-center">Agendamento</h1>
+    <div class="bg-white max-w-md mb-10 mx-auto p-6 rounded-md shadow-md" x-data="agendaApp">
+      <form class="mb-8" @submit.prevent="registrarAgendamento">
+        <!-- Whatsapp -->
+        <div class="mb-4">
+          <input class="border border-gray-200 h-14 px-4 py-2 rounded-md text-gray-500 text-sm w-full focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600" type="text" x-model="form.name" required="true" placeholder="Seu nome" maxlength="20"/>
+        </div>
+        <div class="mb-4">
+          <input class="border border-gray-200 h-14 px-4 py-2 rounded-md text-gray-500 text-sm w-full focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600" type="text" minlength="16" x-model="form.whatsapp" x-mask="(99) 9 9999-9999" required="true" placeholder="Seu Whatsapp"/>
+        </div>
+        <!-- Button Serviços -->
+        <button class="border h-14 mb-4 px-4 py-2 rounded-md text-gray-400 text-left text-sm w-full" type="button" x-text="form.service.label || 'Escolha seu Procedimento'" x-on:click="openService = true" x-bind:class="{ 'text-pink-600 border-pink-600': form.service.id }"></button>
+        <!-- Serviços -->
+        <div class="flex flex-col mb-4" x-show="openService" x-transition>
+          <template x-for="service in services" :key="service.id">
+            <label class="border border-solid border-gray-200 cursor-pointer flex h-14 items-center justify-between mb-2 min-w-20 p-3 rounded-lg" @click.outside="openService = false" @click="form.service = { id: service.id, name: service.nome, label: service.nome }" :class="{
+                'text-pink-600 border-pink-600': form.service.id === service.id,
+                'bg-white text-black': form.service.id !== service.id
+              }">
+              <!-- Nome do serviço --><span class="font-sans leading-4 max-w-56 text-gray-600 text-sm" x-text="service.nome"></span>
+              <!-- Preço do serviço --><span class="font-sans max-w-20 min-w-10 text-gray-600 text-neutral-600 text-sm" x-text="'R$ ' + service.valor"></span>
+              <!-- Input do serviço (oculto) -->
+              <input class="h-6 hidden mr-auto p-3 w-6" name="service" type="radio" x-model.fill="form.service.id" @click="updateDuracao" :value="service.id" required/>
+            </label>
+          </template>
+        </div>
+        <!-- Profissional -->
+        <div class="mb-4">
+          <template x-for="professional in professionals" :key="index">
+            <label class="border border-gray-200 border-solid cursor-pointer flex h-14 items-center justify-start mb-2 min-w-20 p-3 rounded-lg w-full" x-bind:class="{'border-pink-600': form.profissional === professional}">
+              <img class="mr-4 rounded-full" src="assets/vanusaIII.png" alt="Imagem de Vanusa" width="42"/><span class="max-w-64 text-gray-500 text-sm" x-text="professional"></span>
+              <!-- Input do Profissional (oculto) -->
+              <input class="h-6 hidden mr-auto p-3 w-6" name="professional" type="radio" x-model="form.profissional" :value="professional" required/>
+            </label>
+          </template>
+        </div>
+        <!-- Semanas -->
+        <div class="mb-4 overflow-y-auto">
+          <div class="flex p-2">
+            <template x-for="semana in semanas" :key="semana.value">
+              <label class="border border-gray-200 cursor-pointer flex flex-col h-40 items-center justify-center mb-2 min-h-full min-w-20 mr-2 p-3 rounded-lg text-pink-600" @change="updateAvailableHorarios" :class="{'text-pink-600 border-pink-600' : form.semana === semana.value, 'bg-white border-gray-200 text-black': form.semana !== semana.value}"><span class="text-3xl" x-text="semana.day"></span><span class="min-w-max text-sm" x-text="semana.label"></span>
+                <input class="h-6 hidden min-h-0 mx-auto p-3 w-6" name="day" type="radio" x-model="form.semana" :value="semana.value" required/>
+              </label>
+            </template>
+          </div>
+        </div>
+        <!-- Horários -->
+        <div class="content-start flex flex-wrap justify-start max-h-60 mb-4 min-h-60 overflow-y-scroll">
+          <template x-for="horario in horariosDisponiveis" :key="horario.value">
+            <label class="border border-gray-200 border-solid cursor-pointer flex flex-col h-9 items-center justify-evenly mb-2 mx-2 px-1 py-2 rounded-lg w-20" :class="{
+                  'text-pink-600 border-pink-600' : form.horario === horario.label,
+                  'bg-white text-black' : form.horario !== horario.label,
+                  'hidden' : isDisabledHorario(horario.value)
+                }"><span class="font-sans min-w-max text-sm" x-text="horario.label"></span>
+              <input class="h-6 hidden min-h-0 mx-auto p-3 w-6" name="time" type="radio" x-model="form.horario" :value="horario.value" required/>
+            </label>
+          </template>
+        </div>
+        <div class="text-center">
+          <button class="bg-pink-500 font-bold font-sans h-14 px-4 py-2 rounded text-sm text-white w-full disabled:bg-pink-100 disabled:text-pink-800 focus:outline-none hover:bg-pink-600" type="submit" :disabled="isDisableButton" x-text="successMessage" x-transition.duration.500ms></button>
+        </div>
+      </form>
+      <div>
+        <template x-for="(scheduling, index) in clientScheduling" :key="index">
+          <div class="border border-gray-200 border-solid cursor-pointer flex h-14 items-center mb-2 p-3 rounded-lg">
+            <span class="font-sans text-gray-600 text-sm" x-text="scheduling.name"></span><span class="font-sans text-gray-600 text-neutral-600 text-sm" x-text="scheduling.whatsapp"></span>
+            <svg class="ml-auto mr-2 text-2xl text-gray-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em">
+              <g>
+                <path fill="none" d="M0 0h24v24H0z"></path>
+                <path d="M5 18h14v-6.969C19 7.148 15.866 4 12 4s-7 3.148-7 7.031V18zm7-16c4.97 0 9 4.043 9 9.031V20H3v-8.969C3 6.043 7.03 2 12 2zM9.5 21h5a2.5 2.5 0 1 1-5 0z">
+                </path>
+              </g>
+            </svg>
+            <svg class="mr-2 text-2xl text-gray-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em">
+              <g>
+                <path fill="none" d="M0 0h24v24H0z"></path>
+                <path d="M18.586 20H4a.5.5 0 0 1-.4-.8l.4-.533V10c0-1.33.324-2.584.899-3.687L1.393 2.808l1.415-1.415 19.799 19.8-1.415 1.414L18.586 20zM6.408 7.822A5.985 5.985 0 0 0 6 10v8h10.586L6.408 7.822zM20 15.786l-2-2V10a6 6 0 0 0-8.99-5.203L7.56 3.345A8 8 0 0 1 20 10v5.786zM9.5 21h5a2.5 2.5 0 1 1-5 0z">
+                </path>
+              </g>
+            </svg>
+            <svg class="mr-2 text-2xl text-gray-700 cursor-pointer" x-on:click="deleteClientScheduling(index)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em">
+              <g>
+                <path fill="none" d="M0 0h24v24H0z"></path>
+                <path d="M17 6h5v2h-2v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8H2V6h5V3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3zm1 2H6v12h12V8zm-4.586 6l1.768 1.768-1.414 1.414L12 15.414l-1.768 1.768-1.414-1.414L10.586 14l-1.768-1.768 1.414-1.414L12 12.586l1.768-1.768 1.414 1.414L13.414 14zM9 4v2h6V4H9z">
+                </path>
+              </g>
+            </svg>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+  <script src="js/agendamento.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png"/>
+    <link rel="manifest" href="assets/site.webmanifest"/>
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"/>
+    <title>Agendamentos — Ericeira Designer</title>
+    <link href="tailwind_theme/tailwind.css" rel="stylesheet" type="text/css"/>
+    <script defer src="js/Alpine.js"></script>
+    <script src="js/Alpine-Collapse.js"></script>
+    <script src="js/Alpine-Mask.js"></script>
+    <style>[x-cloak] { display: none !important; } body { font-family: "Roboto", sans-serif; } .appt-card { transition: box-shadow 0.15s ease, border-color 0.15s ease; } .appt-card:hover { box-shadow: 0 0 0 2px #f9a8d4; border-color: #f9a8d4; } .tab-pill-active { background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.10); }</style>
+</head>
+
+<body class="bg-gray-50" x-data="agendamentosApp">
+    <header class="fixed inset-x-0 z-50 bg-white border-b border-gray-200 h-14 flex items-center px-4 gap-3">
+        <a href="dashboard.html" class="p-2 -ml-1 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-1.5" aria-label="Voltar ao painel">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+            </svg>
+            <span class="text-sm font-medium hidden sm:inline">Painel</span>
+        </a>
+        <div class="flex items-center gap-2 min-w-0 flex-1">
+            <span class="font-semibold text-gray-900 text-sm">Agendamentos</span>
+        </div>
+        <div class="flex items-center gap-1.5 ml-auto">
+            <div class="relative" x-data="{ avatarOpen: false }">
+                <button @click="avatarOpen = !avatarOpen" class="h-8 w-8 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center hover:bg-pink-200 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-300">E</button>
+                <div x-show="avatarOpen" x-cloak @click.outside="avatarOpen = false" x-transition class="absolute right-0 top-10 bg-white rounded-xl shadow-xl border border-gray-200 py-1 w-48 z-50">
+                    <div class="px-4 py-2.5 border-b border-gray-100">
+                        <p class="text-xs font-semibold text-gray-900">Ericeira Designer</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Profissional</p>
+                    </div>
+                    <button @click="logout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                        Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="min-h-screen pt-14">
+        <div class="p-4 lg:p-6 max-w-3xl mx-auto">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900">Agendamentos</h2>
+                    <p class="text-sm text-gray-400 mt-0.5">Gerencie os atendimentos por período</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="historico-agendamentos.html" class="text-xs font-medium text-gray-500 hover:text-gray-700 flex items-center gap-1 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Histórico
+                    </a>
+                    <button @click="openSchedulingForm()" class="flex items-center gap-2 bg-pink-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-pink-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Novo agendamento
+                    </button>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Hoje</p>
+                    <p class="text-2xl font-bold text-gray-900" x-text="schedulingToday.length"></p>
+                    <p class="text-xs text-gray-400 mt-1">atendimentos</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Amanhã</p>
+                    <p class="text-2xl font-bold text-gray-900" x-text="schedulingTomorrow.length"></p>
+                    <p class="text-xs text-gray-400 mt-1">atendimentos</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Futuros</p>
+                    <p class="text-2xl font-bold text-gray-900" x-text="schedulingOther_days.length"></p>
+                    <p class="text-xs text-gray-400 mt-1">agendados</p>
+                </div>
+            </div>
+            <div class="flex bg-gray-100 rounded-xl p-1 mb-5 gap-1">
+                <button @click="selectedAccordionItem = 'one'" class="flex-1 py-2 px-1 rounded-lg text-xs font-semibold transition-all" :class="selectedAccordionItem === 'one' ? 'tab-pill-active text-gray-900' : 'text-gray-500 hover:text-gray-700'">
+                    Hoje <span class="ml-1 text-xs px-1.5 py-0.5 rounded-full" :class="selectedAccordionItem === 'one' ? 'bg-pink-100 text-pink-600' : 'text-gray-400'" x-text="schedulingToday.length"></span>
+                </button>
+                <button @click="selectedAccordionItem = 'two'" class="flex-1 py-2 px-1 rounded-lg text-xs font-semibold transition-all" :class="selectedAccordionItem === 'two' ? 'tab-pill-active text-gray-900' : 'text-gray-500 hover:text-gray-700'">
+                    Amanhã <span class="ml-1 text-xs px-1.5 py-0.5 rounded-full" :class="selectedAccordionItem === 'two' ? 'bg-pink-100 text-pink-600' : 'text-gray-400'" x-text="schedulingTomorrow.length"></span>
+                </button>
+                <button @click="selectedAccordionItem = 'three'" class="flex-1 py-2 px-1 rounded-lg text-xs font-semibold transition-all" :class="selectedAccordionItem === 'three' ? 'tab-pill-active text-gray-900' : 'text-gray-500 hover:text-gray-700'">
+                    Outros <span class="ml-1 text-xs px-1.5 py-0.5 rounded-full" :class="selectedAccordionItem === 'three' ? 'bg-pink-100 text-pink-600' : 'text-gray-400'" x-text="schedulingOther_days.length"></span>
+                </button>
+            </div>
+            <div x-show="selectedAccordionItem === 'one'">
+                <div x-show="schedulingToday.length === 0" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
+                    <p class="text-3xl mb-2">📭</p>
+                    <p class="text-sm font-medium text-gray-500">Nenhum agendamento para hoje</p>
+                    <p class="text-xs text-gray-400 mt-1">Você está livre! 🎉</p>
+                </div>
+                <template x-for="(agendamento, index) in schedulingToday" :key="agendamento.id || index">
+                    <div class="appt-card bg-white rounded-xl border border-gray-200 mb-3 overflow-hidden" x-data="{ cardOpen: false }">
+                        <div @click="cardOpen = !cardOpen" class="w-full p-4 text-left flex items-start gap-3 cursor-pointer" role="button" tabindex="0">
+                            <div class="h-9 w-9 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center shrink-0 mt-0.5">
+                                <span x-text="agendamento.name ? agendamento.name.charAt(0).toUpperCase() : '?'"></span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between gap-2 mb-0.5">
+                                    <p class="font-semibold text-gray-900 text-sm truncate" x-text="agendamento.name">
+                                    </p>
+                                    <span class="shrink-0 bg-pink-50 text-pink-700 text-xs font-bold px-2 py-0.5 rounded-full border border-pink-100" x-text="agendamento.time"></span>
+                                </div>
+                                <p class="text-xs text-gray-500 truncate" x-text="agendamento.service"></p>
+                                <div class="flex items-center gap-1 mt-1.5">
+                                    <svg class="h-3 w-3 text-gray-400 shrink-0" viewBox="0 0 24 24" xmlns version xml:space fill="currentColor" stroke>
+                                        <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                                    </svg>
+                                    <span class="text-xs text-gray-400 truncate" x-text="agendamento.whatsapp"></span>
+                                </div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 shrink-0 mt-1 transition-transform duration-200" :class="cardOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+                            </svg>
+                        </div>
+                        <div x-show="cardOpen" x-cloak x-collapse class="border-t border-gray-100">
+                            <div class="p-3 flex gap-2">
+                                <button @click="openSchedulingForm(agendamento)" class="flex-1 bg-gray-50 text-gray-700 text-xs font-semibold py-2.5 rounded-lg hover:bg-gray-100 transition-colors">Editar</button>
+                                <button @click="openWatsapp(agendamento.date, agendamento.time)" class="flex-1 bg-green-50 text-green-700 text-xs font-semibold py-2.5 rounded-lg hover:bg-green-100 transition-colors">WhatsApp</button>
+                                <a :href="'faturas.html?schedulingId=' + agendamento.id + '&name=' + encodeURIComponent(agendamento.name) + '&whatsapp=' + encodeURIComponent(agendamento.whatsapp || '') + '&date=' + agendamento.date" class="flex-1 bg-blue-50 text-blue-700 text-xs font-semibold py-2.5 rounded-lg hover:bg-blue-100 transition-colors text-center block">Fatura</a>
+                                <button @click="deleteScheduling(agendamento.id)" class="flex-1 bg-red-50 text-red-700 text-xs font-semibold py-2.5 rounded-lg hover:bg-red-100 transition-colors">Excluir</button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            <div x-show="selectedAccordionItem === 'two'">
+                <div x-show="schedulingTomorrow.length === 0" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
+                    <p class="text-3xl mb-2">📅</p>
+                    <p class="text-sm font-medium text-gray-500">Nenhum agendamento para amanhã</p>
+                </div>
+                <template x-for="(agendamento, index) in schedulingTomorrow" :key="agendamento.id || index">
+                    <div class="appt-card bg-white rounded-xl border border-gray-200 mb-3 overflow-hidden" x-data="{ cardOpen: false }">
+                        <div @click="cardOpen = !cardOpen" class="w-full p-4 text-left flex items-start gap-3 cursor-pointer" role="button" tabindex="0">
+                            <div class="h-9 w-9 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center shrink-0 mt-0.5">
+                                <span x-text="agendamento.name ? agendamento.name.charAt(0).toUpperCase() : '?'"></span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between gap-2 mb-0.5">
+                                    <p class="font-semibold text-gray-900 text-sm truncate" x-text="agendamento.name">
+                                    </p>
+                                    <span class="shrink-0 bg-indigo-50 text-indigo-700 text-xs font-bold px-2 py-0.5 rounded-full border border-indigo-100" x-text="formatDate(agendamento.date) + ' · ' + agendamento.time"></span>
+                                </div>
+                                <p class="text-xs text-gray-500 truncate" x-text="agendamento.service"></p>
+                                <div class="flex items-center gap-1 mt-1.5">
+                                    <svg class="h-3 w-3 text-gray-400 shrink-0" viewBox="0 0 24 24" xmlns version xml:space fill="currentColor" stroke>
+                                        <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                                    </svg>
+                                    <span class="text-xs text-gray-400 truncate" x-text="agendamento.whatsapp"></span>
+                                </div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 shrink-0 mt-1 transition-transform duration-200" :class="cardOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+                            </svg>
+                        </div>
+                        <div x-show="cardOpen" x-cloak x-collapse class="border-t border-gray-100">
+                            <div class="p-3 flex gap-2">
+                                <button @click="openSchedulingForm(agendamento)" class="flex-1 bg-gray-50 text-gray-700 text-xs font-semibold py-2.5 rounded-lg hover:bg-gray-100 transition-colors">Editar</button>
+                                <button @click="openWatsapp(agendamento.date, agendamento.time)" class="flex-1 bg-green-50 text-green-700 text-xs font-semibold py-2.5 rounded-lg hover:bg-green-100 transition-colors">WhatsApp</button>
+                                <a :href="'faturas.html?schedulingId=' + agendamento.id + '&name=' + encodeURIComponent(agendamento.name) + '&whatsapp=' + encodeURIComponent(agendamento.whatsapp || '') + '&date=' + agendamento.date" class="flex-1 bg-blue-50 text-blue-700 text-xs font-semibold py-2.5 rounded-lg hover:bg-blue-100 transition-colors text-center block">Fatura</a>
+                                <button @click="deleteScheduling(agendamento.id)" class="flex-1 bg-red-50 text-red-700 text-xs font-semibold py-2.5 rounded-lg hover:bg-red-100 transition-colors">Excluir</button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            <div x-show="selectedAccordionItem === 'three'">
+                <div x-show="schedulingOther_days.length === 0" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
+                    <p class="text-3xl mb-2">✨</p>
+                    <p class="text-sm font-medium text-gray-500">Nenhum agendamento futuro</p>
+                </div>
+                <template x-for="(agendamento, index) in schedulingOther_days" :key="agendamento.id || index">
+                    <div class="appt-card bg-white rounded-xl border border-gray-200 mb-3 overflow-hidden" x-data="{ cardOpen: false }">
+                        <div @click="cardOpen = !cardOpen" class="w-full p-4 text-left flex items-start gap-3 cursor-pointer" role="button" tabindex="0">
+                            <div class="h-9 w-9 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center shrink-0 mt-0.5">
+                                <span x-text="agendamento.name ? agendamento.name.charAt(0).toUpperCase() : '?'"></span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between gap-2 mb-0.5">
+                                    <p class="font-semibold text-gray-900 text-sm truncate" x-text="agendamento.name">
+                                    </p>
+                                    <span class="shrink-0 bg-gray-50 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full border border-gray-200" x-text="formatDate(agendamento.date) + ' · ' + agendamento.time"></span>
+                                </div>
+                                <p class="text-xs text-gray-500 truncate" x-text="agendamento.service"></p>
+                                <div class="flex items-center gap-1 mt-1.5">
+                                    <svg class="h-3 w-3 text-gray-400 shrink-0" viewBox="0 0 24 24" xmlns version xml:space fill="currentColor" stroke>
+                                        <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                                    </svg>
+                                    <span class="text-xs text-gray-400 truncate" x-text="agendamento.whatsapp"></span>
+                                </div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 shrink-0 mt-1 transition-transform duration-200" :class="cardOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+                            </svg>
+                        </div>
+                        <div x-show="cardOpen" x-cloak x-collapse class="border-t border-gray-100">
+                            <div class="p-3 flex gap-2">
+                                <button @click="openSchedulingForm(agendamento)" class="flex-1 bg-gray-50 text-gray-700 text-xs font-semibold py-2.5 rounded-lg hover:bg-gray-100 transition-colors">Editar</button>
+                                <button @click="openWatsapp(agendamento.date, agendamento.time)" class="flex-1 bg-green-50 text-green-700 text-xs font-semibold py-2.5 rounded-lg hover:bg-green-100 transition-colors">WhatsApp</button>
+                                <a :href="'faturas.html?schedulingId=' + agendamento.id + '&name=' + encodeURIComponent(agendamento.name) + '&whatsapp=' + encodeURIComponent(agendamento.whatsapp || '') + '&date=' + agendamento.date" class="flex-1 bg-blue-50 text-blue-700 text-xs font-semibold py-2.5 rounded-lg hover:bg-blue-100 transition-colors text-center block">Fatura</a>
+                                <button @click="deleteScheduling(agendamento.id)" class="flex-1 bg-red-50 text-red-700 text-xs font-semibold py-2.5 rounded-lg hover:bg-red-100 transition-colors">Excluir</button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+        <div x-show="openFormScheduling" x-cloak class="fixed inset-0 bg-black/40 z-50 flex items-end lg:items-center justify-center" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            <div @click.outside="openFormScheduling = false, formScheduling = {}" class="bg-white w-full lg:max-w-lg lg:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-y-full lg:translate-y-0 lg:scale-95" x-transition:enter-end="translate-y-0 lg:scale-100">
+                <div class="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between z-10">
+                    <h3 class="font-bold text-gray-900" x-text="formScheduling.id ? 'Editar agendamento' : 'Novo agendamento'"></h3>
+                    <button @click="openFormScheduling = false, formScheduling = {}" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-5 space-y-4">
+                    <div>
+                        <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Cliente</label>
+                        <div class="relative" x-data="{ searchOpen: false }">
+                            <input type="text" x-model="formScheduling.name" @focus="searchOpen = true" @input="schedulingClientSearch = formScheduling.name" @click.outside="setTimeout(() => searchOpen = false, 200)" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="Nome do cliente...">
+                            <div x-show="searchOpen && schedulingClientSearch.length > 0" class="absolute z-20 top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg max-h-40 overflow-y-auto">
+                                <template x-for="client in filteredClientList()" :key="client.whatsapp">
+                                    <button @click="selectSchedulingClient(client); searchOpen = false" class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-pink-50" x-text="client.name"></button>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-gray-700 mb-1.5 block">WhatsApp</label>
+                        <input type="text" x-model="formScheduling.whatsapp" x-mask="(99) 99999-9999" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="(11) 99999-9999">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Serviço</label>
+                        <button type="button" @click="openServiceModal = true" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" :class="formScheduling.service ? 'text-gray-900' : 'text-gray-400'">
+                            <span x-text="formScheduling.service || 'Selecione...'"></span>
+                            <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+                            </svg>
+                        </button>
+                        <div x-show="openServiceModal" x-cloak class="fixed inset-0 bg-black/20 z-[60] flex items-end lg:items-center justify-center" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                            <div @click.outside="openServiceModal = false" class="bg-white w-full lg:max-w-xs lg:rounded-xl rounded-t-xl max-h-[40vh] overflow-y-auto" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-y-full lg:translate-y-0 lg:scale-95" x-transition:enter-end="translate-y-0 lg:scale-100">
+                                <div class="sticky top-0 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between z-10">
+                                    <h3 class="font-semibold text-gray-900 text-sm">Selecionar serviço</h3>
+                                    <button @click="openServiceModal = false" class="text-gray-400 hover:text-gray-600 p-0.5 rounded-lg hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg></button>
+                                </div>
+                                <div class="p-1">
+                                    <button type="button" @click="formScheduling.service = ''; openServiceModal = false" class="w-full text-left px-4 py-3 text-sm text-gray-400 hover:bg-gray-50 rounded-xl">Selecione...</button>
+                                    <template x-for="s in services" :key="s.id">
+                                        <button type="button" @click="formScheduling.service = s.nome; openServiceModal = false" class="w-full text-left px-4 py-3 text-sm rounded-xl" :class="formScheduling.service === s.nome ? 'bg-pink-50 text-pink-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'" x-text="s.nome"></button>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Duração (min)</label>
+                            <input type="number" x-model="formScheduling.duration" min="5" step="5" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Data</label>
+                            <input type="date" x-model="formScheduling.date" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Horário</label>
+                        <button type="button" @click="openTimeModal = true" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" :class="formScheduling.time ? 'text-gray-900' : 'text-gray-400'">
+                            <span x-text="formScheduling.time || 'Selecione...'"></span>
+                            <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+                            </svg>
+                        </button>
+                        <div x-show="openTimeModal" x-cloak class="fixed inset-0 bg-black/40 z-50 flex items-end lg:items-center justify-center" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                            <div @click.outside="openTimeModal = false" class="bg-white w-full lg:max-w-xs lg:rounded-xl rounded-t-xl max-h-[40vh] overflow-y-auto" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-y-full lg:translate-y-0 lg:scale-95" x-transition:enter-end="translate-y-0 lg:scale-100">
+                                <div class="sticky top-0 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between z-10">
+                                    <h3 class="font-semibold text-gray-900 text-sm">Selecionar horário</h3>
+                                    <button @click="openTimeModal = false" class="text-gray-400 hover:text-gray-600 p-0.5 rounded-lg hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg></button>
+                                </div>
+                                <div class="p-1">
+                                    <template x-if="!formScheduling.date">
+                                        <div class="text-center py-10">
+                                            <p class="text-3xl mb-2">📅</p>
+                                            <p class="text-sm font-medium text-gray-500">Selecione uma data primeiro</p>
+                                            <p class="text-xs text-gray-400 mt-1">Escolha o dia para ver os horários
+                                                disponíveis</p>
+                                        </div>
+                                    </template>
+                                    <template x-if="formScheduling.date">
+                                        <div>
+                                            <button type="button" @click="formScheduling.time = ''; openTimeModal = false" class="w-full text-left px-4 py-3 text-sm text-gray-400 hover:bg-gray-50 rounded-xl">Selecione...</button>
+                                            <template x-for="opt in schedulingTimeOptions" :key="opt">
+                                                <button type="button" @click="formScheduling.time = opt; openTimeModal = false" class="w-full text-left px-4 py-3 text-sm rounded-xl" :class="formScheduling.time === opt ? 'bg-pink-50 text-pink-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'" x-text="opt"></button>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button @click="openFormScheduling = false, formScheduling = {}" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-colors text-sm">Cancelar</button>
+                        <button @click="postScheduling()" class="flex-1 bg-pink-500 text-white font-bold py-3 rounded-xl hover:bg-pink-600 transition-colors text-sm" x-text="formScheduling.id ? 'Atualizar' : 'Salvar'"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="js/utils.js"></script>
+    <script src="js/agendamentos.js"></script>
+</body>
+</html>
+
+
