@@ -1,159 +1,565 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
+  <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png" />
-    <link rel="manifest" href="assets/site.webmanifest" />
-    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="assets/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="assets/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="assets/favicon-16x16.png"
+    />
+    <link
+      rel="manifest"
+      href="assets/site.webmanifest"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto&display=swap"
+      rel="stylesheet"
+    />
     <title>Faturas — Ericeira Designer</title>
-    <link href="tailwind_theme/tailwind.css" rel="stylesheet" type="text/css" />
-    <script defer src="js/Alpine.js"></script>
+    <link
+      href="tailwind_theme/tailwind.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <script
+      defer
+      src="js/Alpine.js"
+    ></script>
     <style>
-        [x-cloak] { display: none !important; }
-        body { font-family: "Roboto", sans-serif; }
-        .nav-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
-        .nav-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.10); }
-        .nav-card:active { transform: translateY(0); }
+      [x-cloak] {
+        display: none !important;
+      }
+
+      body {
+        font-family: 'Roboto', sans-serif;
+      }
+
+      .nav-card {
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+
+      .nav-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      }
+
+      .nav-card:active {
+        transform: translateY(0);
+      }
     </style>
-</head>
-<body class="bg-gray-50" x-data="faturasApp">
-    <header class="fixed inset-x-0 z-50 bg-white border-b border-gray-200 h-14 flex items-center px-4 gap-3">
-        <a href="dashboard.html"
-            class="p-2 -ml-1 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-1.5"
-            aria-label="Voltar ao painel">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
-            <span class="text-sm font-medium hidden sm:inline">Painel</span>
-        </a>
-        <div class="flex items-center gap-2 min-w-0 flex-1">
-            <span class="font-semibold text-gray-900 text-sm">Faturas</span>
-        </div>
-        <div class="flex items-center gap-1.5 ml-auto">
-            <div class="relative" x-data="{ avatarOpen: false }">
-                <button @click="avatarOpen = !avatarOpen"
-                    class="h-8 w-8 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center hover:bg-pink-200 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-300">E</button>
-                <div x-show="avatarOpen" x-cloak @click.outside="avatarOpen = false" x-transition
-                    class="absolute right-0 top-10 bg-white rounded-xl shadow-xl border border-gray-200 py-1 w-48 z-50">
-                    <div class="px-4 py-2.5 border-b border-gray-100">
-                        <p class="text-xs font-semibold text-gray-900">Ericeira Designer</p>
-                        <p class="text-xs text-gray-400 mt-0.5">Profissional</p>
-                    </div>
-                    <button @click="logout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                        Sair
-                    </button>
-                </div>
+  </head>
+
+  <body
+    class="bg-gray-50"
+    x-data="faturasApp"
+  >
+    <header
+      class="fixed inset-x-0 z-50 bg-white border-b border-gray-200 h-14 flex items-center px-4 gap-3"
+    >
+      <a
+        href="dashboard.html"
+        class="p-2 -ml-1 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-1.5"
+        aria-label="Voltar ao painel"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+        <span class="text-sm font-medium hidden sm:inline">Painel</span>
+      </a>
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <span class="font-semibold text-gray-900 text-sm">Faturas</span>
+      </div>
+      <div class="flex items-center gap-1.5 ml-auto">
+        <div
+          class="relative"
+          x-data="{ avatarOpen: false }"
+        >
+          <button
+            @click="avatarOpen = !avatarOpen"
+            class="h-8 w-8 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center hover:bg-pink-200 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-300"
+          >
+            E
+          </button>
+          <div
+            x-show="avatarOpen"
+            x-cloak
+            @click.outside="avatarOpen = false"
+            x-transition
+            class="absolute right-0 top-10 bg-white rounded-xl shadow-xl border border-gray-200 py-1 w-48 z-50"
+          >
+            <div class="px-4 py-2.5 border-b border-gray-100">
+              <p class="text-xs font-semibold text-gray-900">
+                Ericeira Designer
+              </p>
+              <p class="text-xs text-gray-400 mt-0.5">Profissional</p>
             </div>
+            <button
+              @click="logout()"
+              class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+              Sair
+            </button>
+          </div>
         </div>
+      </div>
     </header>
     <main class="min-h-screen pt-14">
-        <div class="p-4 lg:p-6 max-w-3xl mx-auto">
-            <div class="mb-5">
-                <h2 class="text-xl font-bold text-gray-900">Faturas</h2>
-                <p class="text-sm text-gray-400 mt-0.5">Receitas e controle de pagamentos</p>
-            </div>
+      <div class="p-4 lg:p-6 max-w-3xl mx-auto">
+        <div class="mb-5">
+          <h2 class="text-xl font-bold text-gray-900">Faturas</h2>
+          <p class="text-sm text-gray-400 mt-0.5">
+            Receitas e controle de pagamentos
+          </p>
+        </div>
 
-            <div x-show="inputInvoice.length === 0" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
-                <p class="text-3xl mb-2">💰</p>
-                <p class="text-sm font-medium text-gray-500">Nenhuma fatura registrada</p>
-            </div>
+        <div
+          x-show="inputInvoice.length === 0"
+          class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center"
+        >
+          <p class="text-3xl mb-2">💰</p>
+          <p class="text-sm font-medium text-gray-500">
+            Nenhuma fatura registrada
+          </p>
+        </div>
 
-            <div class="space-y-3">
-                <template x-for="(invoice, index) in inputInvoice" :key="invoice.id || index">
-                    <div class="nav-card bg-white border border-gray-200 flex group items-center justify-between p-4 relative rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-300">
-                        <div @click="openInvoiceForm(invoice)" class="flex-1 min-w-0 mr-2 cursor-pointer">
-                            <div class="flex items-center justify-between mb-1">
-                                <span class="font-bold text-gray-900 truncate" x-text="invoice.nome"></span>
-                                <span class="font-bold text-emerald-600 ml-2" x-text="'R$ ' + invoice.valueReceived"></span>
-                            </div>
-                            <div class="flex items-center justify-between text-xs text-gray-500">
-                                <span x-text="formatDate(invoice.transactionDate)"></span>
-                                <span class="uppercase font-semibold px-2 py-0.5 rounded-full" :class="{
+        <div class="space-y-3">
+          <template
+            x-for="(invoice, index) in inputInvoice"
+            :key="invoice.id || index"
+          >
+            <div
+              class="nav-card bg-white border border-gray-200 flex group items-center justify-between p-4 relative rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
+            >
+              <div
+                @click="openInvoiceForm(invoice)"
+                class="flex-1 min-w-0 mr-2 cursor-pointer"
+              >
+                <div class="flex items-center justify-between mb-1">
+                  <span
+                    class="font-bold text-gray-900 truncate"
+                    x-text="invoice.nome"
+                  ></span>
+                  <span
+                    class="font-bold text-emerald-600 ml-2"
+                    x-text="'R$ ' + invoice.valueReceived"
+                  ></span>
+                </div>
+
+                <div
+                  x-show="invoice.items && invoice.items.length > 0"
+                  class="mb-1.5 flex flex-wrap gap-1"
+                >
+                  <template x-for="item in invoice.items">
+                    <span
+                      x-show="item.service"
+                      class="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-md truncate max-w-[150px]"
+                      x-text="item.service"
+                    ></span>
+                  </template>
+                </div>
+
+                <div
+                  class="flex items-center justify-between text-xs text-gray-500"
+                >
+                  <span x-text="formatDate(invoice.transactionDate)"></span>
+                  <span
+                    class="uppercase font-semibold px-2 py-0.5 rounded-full"
+                    :class="{
                                     'bg-green-50 text-green-700': invoice.status === 'confirmed',
                                     'bg-yellow-50 text-yellow-700': invoice.status === 'pending',
                                     'bg-red-50 text-red-700 line-through': invoice.status === 'cancelled',
                                     'bg-red-50 text-red-700': invoice.status === 'refunded'
-                                }" x-text="invoice.status"></span>
-                            </div>
-                            <div x-show="invoice.whatsapp" class="mt-1 text-xs text-gray-400 flex items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                                <span x-text="invoice.whatsapp"></span>
-                            </div>
-                        </div>
-                        <button x-show="invoice.status !== 'cancelled'" @click="cancelInvoice(invoice)"
-                            class="p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
-                            aria-label="Cancelar fatura">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
-                    </div>
-                </template>
+                                }"
+                    x-text="invoice.status"
+                  ></span>
+                </div>
+                <div
+                  x-show="invoice.whatsapp"
+                  class="mt-1 text-xs text-gray-400 flex items-center gap-1"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-3.5 w-3.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    />
+                  </svg>
+                  <span x-text="invoice.whatsapp"></span>
+                </div>
+              </div>
+              <button
+                x-show="invoice.status !== 'cancelled'"
+                @click="cancelInvoice(invoice)"
+                class="p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
+                aria-label="Cancelar fatura"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
             </div>
+          </template>
         </div>
+      </div>
 
-        <!-- Modal Invoice Form -->
-        <div x-show="openFormInvoice" x-cloak class="fixed inset-0 bg-black/40 z-50 flex items-end lg:items-center justify-center" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-            <div @click.outside="openFormInvoice = false" class="bg-white w-full lg:max-w-lg lg:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-y-full lg:translate-y-0 lg:scale-95" x-transition:enter-end="translate-y-0 lg:scale-100">
-                <div class="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between z-10">
-                    <h3 class="font-bold text-gray-900" x-text="formInputInvoice.id ? 'Editar fatura' : 'Nova fatura'"></h3>
-                    <button @click="openFormInvoice = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
-                </div>
-                <div class="p-5 space-y-4">
-                    <div>
-                        <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Cliente</label>
-                        <input type="text" x-model="formInputInvoice.nome" @input="clearInvoiceError('nome')" class="w-full border rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-gray-50" :class="errors.nome ? 'border-red-400' : 'border-gray-200'" readonly>
-                        <p x-show="errors.nome" x-text="errors.nome" class="text-xs text-red-500 mt-1"></p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Valor recebido (R$)</label>
-                            <input type="number" step="0.01" x-model="formInputInvoice.valueReceived" @input="clearInvoiceError('valueReceived')" class="w-full border rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400" :class="errors.valueReceived ? 'border-red-400' : 'border-gray-200'" placeholder="0,00">
-                            <p x-show="errors.valueReceived" x-text="errors.valueReceived" class="text-xs text-red-500 mt-1"></p>
-                        </div>
-                        <div>
-                            <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Data</label>
-                            <input type="date" x-model="formInputInvoice.transactionDate" @input="clearInvoiceError('transactionDate')" class="w-full border rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400" :class="errors.transactionDate ? 'border-red-400' : 'border-gray-200'">
-                            <p x-show="errors.transactionDate" x-text="errors.transactionDate" class="text-xs text-red-500 mt-1"></p>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Método de pagamento</label>
-                            <select x-model="formInputInvoice.paymentMethod" @change="clearInvoiceError('paymentMethod')" class="w-full border rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" :class="errors.paymentMethod ? 'border-red-400' : 'border-gray-200'">
-                                <option value="">Selecione...</option>
-                                <template x-for="pm in paymentMethods" :key="pm.value">
-                                    <option :value="pm.value" x-text="pm.label"></option>
-                                </template>
-                            </select>
-                            <p x-show="errors.paymentMethod" x-text="errors.paymentMethod" class="text-xs text-red-500 mt-1"></p>
-                        </div>
-                        <div>
-                            <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Status</label>
-                            <select x-model="formInputInvoice.status" @change="clearInvoiceError('status')" class="w-full border rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" :class="errors.status ? 'border-red-400' : 'border-gray-200'">
-                                <option value="">Selecione...</option>
-                                <option value="confirmed">Confirmado</option>
-                                <option value="pending">Pendente</option>
-                                <option value="cancelled">Cancelado</option>
-                                <option value="refunded">Reembolsado</option>
-                            </select>
-                            <p x-show="errors.status" x-text="errors.status" class="text-xs text-red-500 mt-1"></p>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Observações</label>
-                        <textarea x-model="formInputInvoice.notes" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400" rows="2" placeholder="Opcional..."></textarea>
-                    </div>
-                    <input type="hidden" x-model="formInputInvoice.idScheduling">
-                    <div class="flex gap-3 pt-2">
-                        <button @click="openFormInvoice = false" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-colors text-sm">Cancelar</button>
-                        <button @click="postInputInvoice()" class="flex-1 bg-pink-500 text-white font-bold py-3 rounded-xl hover:bg-pink-600 transition-colors text-sm" x-text="formInputInvoice.id ? 'Atualizar' : 'Salvar'"></button>
-                    </div>
-                </div>
+      <!-- Modal Invoice Form -->
+      <div
+        x-show="openFormInvoice"
+        x-cloak
+        class="fixed inset-0 bg-black/40 z-50 flex items-end lg:items-center justify-center"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+      >
+        <div
+          @click.outside="openFormInvoice = false"
+          class="bg-white w-full lg:max-w-lg lg:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto"
+          x-transition:enter="transition ease-out duration-200"
+          x-transition:enter-start="translate-y-full lg:translate-y-0 lg:scale-95"
+          x-transition:enter-end="translate-y-0 lg:scale-100"
+        >
+          <div
+            class="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between z-10"
+          >
+            <h3
+              class="font-bold text-gray-900"
+              x-text="formInputInvoice.id ? 'Editar fatura' : 'Nova fatura'"
+            ></h3>
+            <button
+              @click="openFormInvoice = false"
+              class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="p-5 space-y-4">
+            <div>
+              <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
+                Cliente
+              </label>
+              <input
+                type="text"
+                x-model="formInputInvoice.nome"
+                @input="clearInvoiceError('nome')"
+                class="w-full border rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-gray-50"
+                :class="errors.nome ? 'border-red-400' : 'border-gray-200'"
+                readonly
+              />
+              <p
+                x-show="errors.nome"
+                x-text="errors.nome"
+                class="text-xs text-red-500 mt-1"
+              ></p>
             </div>
+
+            <div class="mb-4">
+              <div class="flex justify-between items-center mb-2">
+                <label class="text-xs font-semibold text-gray-700 block">
+                  Itens / Serviços
+                </label>
+                <button
+                  type="button"
+                  @click="addItem()"
+                  class="text-xs text-amber-600 font-medium hover:text-amber-700 flex items-center gap-1"
+                >
+                  <svg
+                    class="w-3 h-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    ></path>
+                  </svg>
+                  Adicionar
+                </button>
+              </div>
+
+              <div class="space-y-2">
+                <template
+                  x-for="(item, index) in formInputInvoice.items"
+                  :key="index"
+                >
+                  <div
+                    class="flex gap-2 items-start border p-2 rounded-lg bg-gray-50 border-gray-200"
+                  >
+                    <div class="flex-1">
+                      <label
+                        class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1 block"
+                      >
+                        Serviço
+                      </label>
+                      <select
+                        x-model="item.service"
+                        @change="onServiceChange(index)"
+                        class="w-full border border-gray-200 rounded-md px-2 py-1.5 text-sm bg-white focus:ring-1 focus:ring-amber-400 focus:outline-none"
+                      >
+                        <option value="">Selecione...</option>
+                        <template
+                          x-for="svc in services"
+                          :key="svc.id"
+                        >
+                          <option
+                            :value="svc.nome"
+                            x-text="svc.nome"
+                          ></option>
+                        </template>
+                      </select>
+                    </div>
+                    <div class="w-20">
+                      <label
+                        class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1 block"
+                      >
+                        Valor
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        x-model="item.value"
+                        class="w-full border border-gray-200 rounded-md px-2 py-1.5 text-sm bg-white focus:ring-1 focus:ring-amber-400 focus:outline-none"
+                        placeholder="0.00"
+                      />
+                    </div>
+                    <div class="w-20">
+                      <label
+                        class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1 block"
+                      >
+                        Desc.
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        x-model="item.discount"
+                        class="w-full border border-gray-200 rounded-md px-2 py-1.5 text-sm bg-white focus:ring-1 focus:ring-amber-400 focus:outline-none"
+                        placeholder="0.00"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      @click="removeItem(index)"
+                      class="mt-5 text-gray-400 hover:text-red-500 p-1"
+                      title="Remover item"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        ></path>
+                      </svg>
+                    </button>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
+                  Valor recebido (R$)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  x-model="formInputInvoice.valueReceived"
+                  @input="clearInvoiceError('valueReceived')"
+                  class="w-full border rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-amber-400 bg-gray-100 text-green-700"
+                  :class="errors.valueReceived ? 'border-red-400' : 'border-gray-200'"
+                  placeholder="0,00"
+                  readonly
+                />
+                <p
+                  x-show="errors.valueReceived"
+                  x-text="errors.valueReceived"
+                  class="text-xs text-red-500 mt-1"
+                ></p>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
+                  Data
+                </label>
+                <input
+                  type="date"
+                  x-model="formInputInvoice.transactionDate"
+                  @input="clearInvoiceError('transactionDate')"
+                  class="w-full border rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  :class="errors.transactionDate ? 'border-red-400' : 'border-gray-200'"
+                />
+                <p
+                  x-show="errors.transactionDate"
+                  x-text="errors.transactionDate"
+                  class="text-xs text-red-500 mt-1"
+                ></p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
+                  Método de pagamento
+                </label>
+                <select
+                  x-model="formInputInvoice.paymentMethod"
+                  @change="clearInvoiceError('paymentMethod')"
+                  class="w-full border rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+                  :class="errors.paymentMethod ? 'border-red-400' : 'border-gray-200'"
+                >
+                  <option value="">Selecione...</option>
+                  <template
+                    x-for="pm in paymentMethods"
+                    :key="pm.value"
+                  >
+                    <option
+                      :value="pm.value"
+                      x-text="pm.label"
+                    ></option>
+                  </template>
+                </select>
+                <p
+                  x-show="errors.paymentMethod"
+                  x-text="errors.paymentMethod"
+                  class="text-xs text-red-500 mt-1"
+                ></p>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
+                  Status
+                </label>
+                <select
+                  x-model="formInputInvoice.status"
+                  @change="clearInvoiceError('status')"
+                  class="w-full border rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+                  :class="errors.status ? 'border-red-400' : 'border-gray-200'"
+                >
+                  <option value="">Selecione...</option>
+                  <option value="confirmed">Confirmado</option>
+                  <option value="pending">Pendente</option>
+                  <option value="cancelled">Cancelado</option>
+                  <option value="refunded">Reembolsado</option>
+                </select>
+                <p
+                  x-show="errors.status"
+                  x-text="errors.status"
+                  class="text-xs text-red-500 mt-1"
+                ></p>
+              </div>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
+                Observações
+              </label>
+              <textarea
+                x-model="formInputInvoice.notes"
+                class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                rows="2"
+                placeholder="Opcional..."
+              ></textarea>
+            </div>
+            <input
+              type="hidden"
+              x-model="formInputInvoice.idScheduling"
+            />
+            <div class="flex gap-3 pt-2">
+              <button
+                @click="openFormInvoice = false"
+                class="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-colors text-sm"
+              >
+                Cancelar
+              </button>
+              <button
+                @click="postInputInvoice()"
+                class="flex-1 bg-pink-500 text-white font-bold py-3 rounded-xl hover:bg-pink-600 transition-colors text-sm"
+                x-text="formInputInvoice.id ? 'Atualizar' : 'Salvar'"
+              ></button>
+            </div>
+          </div>
         </div>
+      </div>
     </main>
     <script src="js/utils.js"></script>
     <script src="js/faturas.js"></script>
-</body>
+  </body>
 </html>
