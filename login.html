@@ -13,11 +13,10 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto+Serif&display=swap" rel="stylesheet" />
     <title>Login</title>
     <link href="tailwind_theme/tailwind.css" rel="stylesheet" type="text/css" data-pg-name="TailwindCSS">
-    <script src="https://cdn.tailwindcss.com/" data-pg-name="TailwindCSS"></script>
     <script defer src="js/Alpine.js" data-pg-name="AlpineJs"></script>
 </head>
 
-<body x-data="login()" class="flex items-center justify-center">
+<body x-data="loginForm()" class="flex items-center justify-center">
     <div class="container mx-auto px-4">
         <div class="mx-auto md:w-9/12 xl:w-5/12">
             <div class="bg-white px-6 py-12 w-full sm:px-12 lg:py-16">
@@ -36,7 +35,7 @@
                             </svg></span>
                         <input x-model="username" type="text"
                             class="block border border-gray-300 flex-1 px-3 py-2 rounded-r-md w-full focus:appearance-none focus:border-0 focus:outline-none focus:outline-offset-0 focus:outline-pink-600"
-                            placeholder="Usuário" aria-label="username" required>
+                            placeholder="Usuário" aria-label="username" autocomplete="username" required>
                     </div>
                     <div class="flex mb-4 text-sm"><span
                             class="bg-gray-50 border border-gray-300 border-r-0 inline-flex items-center px-3 py-2 rounded-l-md text-gray-600"><svg
@@ -51,7 +50,7 @@
                             </svg></span>
                         <input x-model="password" type="password"
                             class="appearance-none block border border-gray-300 flex-1 px-3 py-2 rounded-r-md w-full focus:appearance-none focus:border-none focus:caret-pink-600 focus:outline-offset-0 focus:outline-pink-600"
-                            placeholder="Password" aria-label="Password" required>
+                            placeholder="Password" aria-label="Password" autocomplete="current-password" required>
                     </div>
                     <p x-text="errorMessage" class="mb-4 text-pink-900"></p>
                     <button
