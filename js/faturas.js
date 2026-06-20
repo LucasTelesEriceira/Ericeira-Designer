@@ -4,6 +4,8 @@ function faturasApp() {
     openFormInvoice: false,
     deletingInvoice: false,
     formInputInvoice: { items: [] },
+    subtotalValue: '0.00',
+    totalDiscount: '0.00',
     errors: {},
     services: [],
     paymentMethods: [
@@ -62,13 +64,19 @@ function faturasApp() {
 
     recalculateTotal() {
       if (!this.formInputInvoice.items) return
-      let total = 0
+      let subtotal = 0
+      let tDiscount = 0
       for (const item of this.formInputInvoice.items) {
         const val = parseFloat(item.value) || 0
         const disc = parseFloat(item.discount) || 0
-        total += val - disc
+        subtotal += val
+        tDiscount += disc
       }
-      this.formInputInvoice.valueReceived = total > 0 ? total.toFixed(2) : ''
+      this.subtotalValue = subtotal > 0 ? subtotal.toFixed(2) : '0.00'
+      this.totalDiscount = tDiscount > 0 ? tDiscount.toFixed(2) : '0.00'
+      const totalFinal = subtotal - tDiscount
+      this.formInputInvoice.valueReceived =
+        totalFinal > 0 ? totalFinal.toFixed(2) : ''
     },
 
     checkQueryParams() {
