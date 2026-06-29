@@ -1,5 +1,6 @@
 _pgbackup/
 _pginfo/
+generated_images/
 pinegrow.json
 projectdb.pgml
 console.md

@@ -90,7 +90,7 @@ function faturasApp() {
         let initialValue = ''
         if (serviceParam) {
           const svc = this.services.find((s) => s.nome === serviceParam)
-          if (svc) initialValue = svc.preco || ''
+          if (svc) initialValue = svc.valor || ''
         }
 
         this.formInputInvoice = {
@@ -194,7 +194,7 @@ function faturasApp() {
       const sName = this.formInputInvoice.items[index].service
       const svc = this.services.find((s) => s.nome === sName)
       if (svc) {
-        this.formInputInvoice.items[index].value = svc.preco || ''
+        this.formInputInvoice.items[index].value = svc.valor || ''
       }
     },
 

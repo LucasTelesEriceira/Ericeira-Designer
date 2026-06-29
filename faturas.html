@@ -326,150 +326,6 @@
               ></p>
             </div>
 
-            <div class="mb-4">
-              <div class="flex justify-between items-center mb-2">
-                <label class="text-xs font-semibold text-gray-700 block">
-                  Itens / Serviços
-                </label>
-                <button
-                  type="button"
-                  @click="addItem()"
-                  class="text-xs text-amber-600 font-medium hover:text-amber-700 flex items-center gap-1"
-                >
-                  <svg
-                    class="w-3 h-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 4v16m8-8H4"
-                    ></path>
-                  </svg>
-                  Adicionar
-                </button>
-              </div>
-
-              <div class="space-y-2">
-                <template
-                  x-for="(item, index) in formInputInvoice.items"
-                  :key="index"
-                >
-                  <div
-                    class="flex gap-2 items-start border p-2 rounded-lg bg-gray-50 border-gray-200"
-                  >
-                    <div class="flex-1">
-                      <label
-                        class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1 block"
-                      >
-                        Serviço
-                      </label>
-                      <select
-                        x-model="item.service"
-                        @change="onServiceChange(index)"
-                        class="w-full border border-gray-200 rounded-md px-2 py-1.5 text-sm bg-white focus:ring-1 focus:ring-amber-400 focus:outline-none"
-                      >
-                        <option value="">Selecione...</option>
-                        <template
-                          x-for="svc in services"
-                          :key="svc.id"
-                        >
-                          <option
-                            :value="svc.nome"
-                            x-text="svc.nome"
-                          ></option>
-                        </template>
-                      </select>
-                    </div>
-                    <div class="w-20">
-                      <label
-                        class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1 block"
-                      >
-                        Valor
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        x-model="item.value"
-                        class="w-full border border-gray-200 rounded-md px-2 py-1.5 text-sm bg-white focus:ring-1 focus:ring-amber-400 focus:outline-none"
-                        placeholder="0.00"
-                      />
-                    </div>
-                    <div class="w-20">
-                      <label
-                        class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1 block"
-                      >
-                        Desc.
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        x-model="item.discount"
-                        class="w-full border border-gray-200 rounded-md px-2 py-1.5 text-sm bg-white focus:ring-1 focus:ring-amber-400 focus:outline-none"
-                        placeholder="0.00"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      @click="removeItem(index)"
-                      class="mt-5 text-gray-400 hover:text-red-500 p-1"
-                      title="Remover item"
-                    >
-                      <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        ></path>
-                      </svg>
-                    </button>
-                  </div>
-                </template>
-              </div>
-
-              <!-- Novo Resumo de Valores Abaixo dos Itens -->
-              <div class="mt-4 pt-3 border-t border-gray-200">
-                <div
-                  class="flex justify-between items-center mb-1 text-sm text-gray-500"
-                >
-                  <span>Subtotal:</span>
-                  <span x-text="'R$ ' + subtotalValue"></span>
-                </div>
-                <div
-                  class="flex justify-between items-center mb-2 text-sm text-gray-500"
-                >
-                  <span>Desconto Total:</span>
-                  <span
-                    x-text="totalDiscount > 0 ? '- R$ ' + totalDiscount : 'R$ 0.00'"
-                    class="text-pink-600"
-                  ></span>
-                </div>
-                <div
-                  class="flex justify-between items-center text-sm font-bold text-gray-900"
-                >
-                  <span>Valor Total:</span>
-                  <span
-                    x-text="'R$ ' + formInputInvoice.valueReceived"
-                    class="text-green-700 text-base"
-                  ></span>
-                </div>
-                <p
-                  x-show="errors.valueReceived"
-                  x-text="errors.valueReceived"
-                  class="text-xs text-red-500 mt-1 text-right"
-                ></p>
-              </div>
-            </div>
-
             <div class="grid grid-cols-2 gap-3">
               <div class="col-span-2">
                 <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
@@ -551,6 +407,153 @@
                 rows="2"
                 placeholder="Opcional..."
               ></textarea>
+            </div>
+            <div class="mb-4">
+              <div class="flex justify-between items-center mb-2">
+                <label class="text-xs font-semibold text-gray-700 block">
+                  Itens / Serviços
+                </label>
+                <button
+                  type="button"
+                  @click="addItem()"
+                  class="text-xs text-amber-600 font-medium hover:text-amber-700 flex items-center gap-1"
+                >
+                  <svg
+                    class="w-3 h-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    ></path>
+                  </svg>
+                  Adicionar
+                </button>
+              </div>
+
+              <div class="space-y-2">
+                <template
+                  x-for="(item, index) in formInputInvoice.items"
+                  :key="index"
+                >
+                  <div
+                    class="flex gap-2 items-start border p-2 rounded-lg bg-gray-50 border-gray-200"
+                  >
+                    <div class="flex-1">
+                      <label
+                        class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1 block"
+                      >
+                        Serviço
+                      </label>
+                      <select
+                        x-model="item.service"
+                        @change="onServiceChange(index)"
+                        class="w-full border border-gray-200 rounded-md px-2 py-1.5 text-sm bg-white focus:ring-1 focus:ring-amber-400 focus:outline-none"
+                      >
+                        <option value="">Selecione...</option>
+                        <template
+                          x-for="svc in services"
+                          :key="svc.id"
+                        >
+                          <option
+                            :selected="svc.nome === item.service"
+                            :value="svc.nome"
+                            x-text="svc.nome"
+                          ></option>
+                        </template>
+                      </select>
+                    </div>
+                    <div class="w-20">
+                      <label
+                        class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1 block"
+                      >
+                        Valor
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        x-model="item.value"
+                        class="w-full border border-gray-200 rounded-md px-2 py-1.5 text-sm bg-white focus:ring-1 focus:ring-amber-400 focus:outline-none"
+                        placeholder="0.00"
+                      />
+                    </div>
+                    <div class="w-20">
+                      <label
+                        class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1 block"
+                      >
+                        Desc.
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        x-model="item.discount"
+                        class="w-full border border-gray-200 rounded-md px-2 py-1.5 text-sm bg-white focus:ring-1 focus:ring-amber-400 focus:outline-none"
+                        placeholder="0.00"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      @click="removeItem(index)"
+                      class="mt-5 text-gray-400 hover:text-red-500 p-1"
+                      title="Remover item"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        ></path>
+                      </svg>
+                    </button>
+                  </div>
+                </template>
+              </div>
+
+              <!-- Novo Resumo de Valores Abaixo dos Itens -->
+              <div
+                x-show="formInputInvoice.items.length > 0"
+                class="mt-4 pt-3 border-t border-gray-200"
+              >
+                <div
+                  class="flex justify-between items-center mb-1 text-sm text-gray-500"
+                >
+                  <span>Subtotal:</span>
+                  <span x-text="'R$ ' + subtotalValue"></span>
+                </div>
+                <div
+                  class="flex justify-between items-center mb-2 text-sm text-gray-500"
+                >
+                  <span>Desconto Total:</span>
+                  <span
+                    x-text="totalDiscount > 0 ? '- R$ ' + totalDiscount : 'R$ 0.00'"
+                    class="text-pink-600"
+                  ></span>
+                </div>
+                <div
+                  class="flex justify-between items-center text-sm font-bold text-gray-900"
+                >
+                  <span>Valor Total:</span>
+                  <span
+                    x-text="'R$ ' + formInputInvoice.valueReceived"
+                    class="text-green-700 text-base"
+                  ></span>
+                </div>
+                <p
+                  x-show="errors.valueReceived"
+                  x-text="errors.valueReceived"
+                  class="text-xs text-red-500 mt-1 text-right"
+                ></p>
+              </div>
             </div>
             <input
               type="hidden"

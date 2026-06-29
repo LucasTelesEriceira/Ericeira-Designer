@@ -9,8 +9,14 @@ function agendamentosApp() {
     openServiceModal: false,
     openTimeModal: false,
     formScheduling: {
-      id: '', name: '', whatsapp: '', service: '',
-      professional: 'Vanusa Ericeira', date: '', time: '', duration: '',
+      id: '',
+      name: '',
+      whatsapp: '',
+      service: '',
+      professional: 'Vanusa Ericeira',
+      date: '',
+      time: '',
+      duration: '',
     },
     schedulingTimeOptions: [],
     schedulingClientSearch: '',
@@ -42,8 +48,12 @@ function agendamentosApp() {
           this.computeAvailableTimeOptions()
         }
       })
-      this.$watch('formScheduling.date', () => this.computeAvailableTimeOptions())
-      this.$watch('formScheduling.duration', () => this.computeAvailableTimeOptions())
+      this.$watch('formScheduling.date', () =>
+        this.computeAvailableTimeOptions()
+      )
+      this.$watch('formScheduling.duration', () =>
+        this.computeAvailableTimeOptions()
+      )
       this.checkQueryParams()
     },
 
@@ -75,10 +85,13 @@ function agendamentosApp() {
         )
         this.services = await response.json()
         this.services.sort((a, b) => a.nome.localeCompare(b.nome))
-        localStorage.setItem(cacheKey, JSON.stringify({
-          services: this.services,
-          timestamp: Date.now(),
-        }))
+        localStorage.setItem(
+          cacheKey,
+          JSON.stringify({
+            services: this.services,
+            timestamp: Date.now(),
+          })
+        )
       } catch (error) {
         console.error('Erro ao buscar serviços:', error)
       }
@@ -168,8 +181,12 @@ function agendamentosApp() {
 
         if (response.ok) {
           this.schedulingToday = this.schedulingToday.filter((a) => a.id !== id)
-          this.schedulingTomorrow = this.schedulingTomorrow.filter((a) => a.id !== id)
-          this.schedulingOther_days = this.schedulingOther_days.filter((a) => a.id !== id)
+          this.schedulingTomorrow = this.schedulingTomorrow.filter(
+            (a) => a.id !== id
+          )
+          this.schedulingOther_days = this.schedulingOther_days.filter(
+            (a) => a.id !== id
+          )
         } else {
           const error = await response.json()
           alert('Erro: ' + (error.error || 'Falha ao excluir'))
@@ -193,8 +210,14 @@ function agendamentosApp() {
         }
       } else if (!this.formScheduling.id) {
         this.formScheduling = {
-          id: '', name: '', whatsapp: '', service: '',
-          professional: 'Vanusa Ericeira', date: '', time: '', duration: '',
+          id: '',
+          name: '',
+          whatsapp: '',
+          service: '',
+          professional: 'Vanusa Ericeira',
+          date: '',
+          time: '',
+          duration: '',
         }
       }
       this.computeAvailableTimeOptions()
@@ -211,7 +234,10 @@ function agendamentosApp() {
         ...this.schedulingToday,
         ...this.schedulingTomorrow,
         ...this.schedulingOther_days,
-      ].filter((a) => a.date === date && a.professional === this.formScheduling.professional)
+      ].filter(
+        (a) =>
+          a.date === date && a.professional === this.formScheduling.professional
+      )
     },
 
     isTimeBlockedByDate(dayOfWeek, date) {
@@ -250,10 +276,15 @@ function agendamentosApp() {
         for (let m = 0; m < 60; m += 5) {
           if (h === 12 || (h === 13 && m < 60)) continue
 
-          const timeStr = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0')
+          const timeStr =
+            String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0')
 
           if (isToday) {
-            if (h < now.getHours() || (h === now.getHours() && m <= now.getMinutes())) continue
+            if (
+              h < now.getHours() ||
+              (h === now.getHours() && m <= now.getMinutes())
+            )
+              continue
           }
 
           if (!duration) {
@@ -271,7 +302,9 @@ function agendamentosApp() {
           const hasConflict = existing.some((a) => {
             const [ah, am] = a.time.split(':').map(Number)
             const existingStart = this.createDateTime(a.date, ah, am)
-            const existingEnd = new Date(existingStart.getTime() + a.duration * 60000)
+            const existingEnd = new Date(
+              existingStart.getTime() + a.duration * 60000
+            )
             return clientStart < existingEnd && clientEnd > existingStart
           })
 
@@ -329,7 +362,16 @@ function agendamentosApp() {
         ])
         this.computeClientList()
         this.openFormScheduling = false
-        this.formScheduling = { id: '', name: '', whatsapp: '', service: '', professional: 'Vanusa Ericeira', date: '', time: '', duration: '' }
+        this.formScheduling = {
+          id: '',
+          name: '',
+          whatsapp: '',
+          service: '',
+          professional: 'Vanusa Ericeira',
+          date: '',
+          time: '',
+          duration: '',
+        }
         this.schedulingClientSearch = ''
       } catch (error) {
         console.error('Erro ao salvar agendamento:', error)
@@ -338,7 +380,11 @@ function agendamentosApp() {
     },
 
     openWatsapp(day, time) {
-      const all = [...this.schedulingToday, ...this.schedulingTomorrow, ...this.schedulingOther_days]
+      const all = [
+        ...this.schedulingToday,
+        ...this.schedulingTomorrow,
+        ...this.schedulingOther_days,
+      ]
       const item = all.find((a) => a.date === day && a.time === time)
       if (!item) return
 

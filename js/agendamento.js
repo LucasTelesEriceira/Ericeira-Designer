@@ -1,10 +1,5 @@
 function agendaApp() {
   return {
-    urlBase: {
-      development: 'http://api-agendamento.teste',
-      production: 'https://lightslategrey-guanaco-998055.hostingersite.com',
-    },
-    env: 'development',
     form: {
       name: '',
       whatsapp: '',
@@ -159,7 +154,7 @@ function agendaApp() {
 
       try {
         const response = await fetch(
-          `${this.urlBase[this.env]}/json/api/v1/scheduling/${scheduling.id}`,
+          `${getUrlBase()[getEnv()]}/json/api/v1/scheduling/${scheduling.id}`,
           {
             method: 'DELETE',
             headers: {
@@ -182,8 +177,6 @@ function agendaApp() {
           // Atualiza a lista na tela
           this.fetchClientScheduling()
           this.fetchScheduling()
-
-          console.log('Agendamento removido com sucesso:', result.message)
         } else {
           console.error(
             'Erro ao deletar agendamento:',
@@ -251,17 +244,6 @@ function agendaApp() {
         currentTime.getTime() + this.form.duracao * 60000
       )
 
-      // DEBUG: Log completo
-      if (horario === '08:00') {
-        console.log('=== DEBUG 08:00 ===')
-        console.log('form.semana:', this.form.semana)
-        console.log('form.duracao:', this.form.duracao)
-        console.log('clientStart:', clientStart)
-        console.log('clientEnd:', clientEnd)
-        console.log('clientStart ISO:', clientStart.toISOString())
-        console.log('clientEnd ISO:', clientEnd.toISOString())
-      }
-
       // Horário de almoço fixo: 12:00 às 14:00
       const lunchStart = this.createDateTime(this.form.semana, 12, 0)
       const lunchEnd = this.createDateTime(this.form.semana, 14, 0)
@@ -269,11 +251,6 @@ function agendaApp() {
       // Verifica se o horário selecionado invade o horário de almoço
       // Bloqueia horários que terminariam durante o almoço
       if (clientStart < lunchEnd && clientEnd > lunchStart) {
-        if (horario === '08:00') {
-          console.log('BLOQUEADO por almoço!')
-          console.log('lunchStart:', lunchStart)
-          console.log('lunchEnd:', lunchEnd)
-        }
         return true // Bloqueia se invadir o horário de almoço
       }
 
@@ -300,21 +277,8 @@ function agendaApp() {
         // Há conflito se: clientStart < existingEnd E clientEnd > existingStart
         const conflict = clientStart < existingEnd && clientEnd > existingStart
 
-        if (conflict && horario === '08:00') {
-          console.log('BLOQUEADO por conflito com agendamento:')
-          console.log('Agendamento existente:', a)
-          console.log('existingStart:', existingStart)
-          console.log('existingEnd:', existingEnd)
-        }
-
         return conflict
       })
-
-      if (horario === '08:00') {
-        console.log('hasConflict:', hasConflict)
-        console.log('Resultado final isDisabledHorario:', hasConflict)
-        console.log('Total de agendamentos:', this.agendado.length)
-      }
 
       return hasConflict
     },
@@ -329,13 +293,13 @@ function agendaApp() {
       const currentHour = now.getHours()
       const currentMinute = now.getMinutes()
 
-      const isTodaySelected = this.form.semana === this.semanas[0].value
-
-      console.log('=== updateAvailableHorarios ===')
-      console.log('Agora:', now)
-      console.log('form.semana:', this.form.semana)
-      console.log('semanas[0].value:', this.semanas[0]?.value)
-      console.log('isTodaySelected:', isTodaySelected)
+      const todayStr =
+        now.getFullYear() +
+        '-' +
+        String(now.getMonth() + 1).padStart(2, '0') +
+        '-' +
+        String(now.getDate()).padStart(2, '0')
+      const isTodaySelected = this.form.semana === todayStr
 
       this.horariosDisponiveis = this.horarios
         .filter((horario) => {
@@ -350,9 +314,6 @@ function agendaApp() {
           return true
         })
         .map((horario) => ({ value: horario, label: horario }))
-
-      console.log('Total horariosDisponiveis:', this.horariosDisponiveis.length)
-      console.log('Primeiros 3:', this.horariosDisponiveis.slice(0, 3))
     },
 
     async fetchServices() {
@@ -368,7 +329,7 @@ function agendaApp() {
 
       try {
         const response = await fetch(
-          this.urlBase[this.env] + '/json/api/v1/services'
+          getUrlBase()[getEnv()] + '/json/api/v1/services'
         )
         this.services = await response.json()
 
@@ -384,7 +345,7 @@ function agendaApp() {
     async fetchScheduling() {
       try {
         const response = await fetch(
-          this.urlBase[this.env] + '/json/api/v1/scheduling'
+          getUrlBase()[getEnv()] + '/json/api/v1/scheduling'
         )
         this.agendado = await response.json()
       } catch (error) {
@@ -395,7 +356,7 @@ function agendaApp() {
     async registrarAgendamento() {
       try {
         const response = await fetch(
-          this.urlBase[this.env] + '/json/api/v1/scheduling',
+          getUrlBase()[getEnv()] + '/json/api/v1/scheduling',
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -441,49 +402,6 @@ function agendaApp() {
       }
     },
 
-    checkNotificationPermission() {
-      if (!('Notification' in window)) return
-      const permission = Notification.requestPermission()
-      if (permission === 'denied') return
-    },
-
-    async showNotification() {
-      // return localStorage.getItem('agendamento').some((a) => {
-      //   const horarioAgendamento = new Date(hora);
-      //   console.log(horarioAgendamento);
-      //   console.log(horarioAgendamento.getTime());
-      //   console.log(a.data);
-      // });
-      //const horarioNotificacao = new Date(horarioAgendamento.getTime() - 5 * 60 * 1000);
-      //const tempoRestante = horarioNotificacao - new Date();
-      // if (tempoRestante > 0) {
-      //   setTimeout(() => this.enviarNotificacao(agendamento.cliente), tempoRestante);
-      // }
-      // new Notification("Alpine.js Notificação", {
-      //   body: "Esta é uma notificação do navegador usando Alpine.js!",
-      //   icon: "https://example.com/icon.png", // Opcional: URL para o ícone da notificação
-      // });
-    },
-
-    async startNotifications(hora) {
-      if (!('Notification' in window)) {
-        alert('Este navegador não suporta notificações de desktop.')
-        return
-      }
-
-      // Verifica a permissão do usuário
-      if (Notification.permission === 'granted') {
-        this.showNotification(hora)
-      } else if (Notification.permission !== 'denied') {
-        // Solicita permissão ao usuário
-        Notification.requestPermission().then((permission) => {
-          if (permission === 'granted') {
-            this.showNotification(hora)
-          }
-        })
-      }
-    },
-
     isDisableButton() {
       if (
         this.form.whatsapp.replace(/\D/g, '').length < 11 ||
@@ -510,12 +428,10 @@ function agendaApp() {
     },
 
     init() {
-      this.showNotification()
       this.fetchServices()
       this.fetchScheduling()
       this.populateWeeks()
       this.updateAvailableHorarios()
-      this.checkNotificationPermission()
       this.fetchClientScheduling()
     },
   }
