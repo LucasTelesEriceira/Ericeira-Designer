@@ -1,6 +1,7 @@
 function servicosApp() {
   return {
     services: [],
+    loading: true,
     openFormService: false,
     formService: { id: '', nome: '', valor: '', duracao: '' },
 
@@ -9,7 +10,9 @@ function servicosApp() {
         window.location.href = 'login.html'
         return
       }
+      this.loading = true
       await this.fetchServices()
+      this.loading = false
     },
 
     async fetchServices() {

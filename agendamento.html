@@ -22,6 +22,10 @@
     <h1 class="font-semibold mb-4 text-base text-center">Agendamento</h1>
     <div class="bg-white max-w-md mb-10 mx-auto p-6 rounded-md shadow-md" x-data="agendaApp">
       <form class="mb-8" @submit.prevent="registrarAgendamento">
+        <div x-show="loading" x-cloak class="flex items-center justify-center py-20">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500"></div>
+          <span class="ml-3 text-sm text-gray-400">Carregando...</span>
+        </div>
         <!-- Whatsapp -->
         <div class="mb-4">
           <input class="border border-gray-200 h-14 px-4 py-2 rounded-md text-gray-500 text-sm w-full focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600" type="text" x-model="form.name" required="true" placeholder="Seu nome" maxlength="20"/>

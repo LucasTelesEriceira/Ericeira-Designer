@@ -1,13 +1,16 @@
 function historicoApp() {
   return {
     concludedScheduling: [],
+    loading: true,
 
     async init() {
       if (!localStorage.getItem('jwtToken')) {
         window.location.href = 'login.html'
         return
       }
+      this.loading = true
       await this.fetchConcluded()
+      this.loading = false
     },
 
     async fetchConcluded() {

@@ -1,6 +1,7 @@
 function despesasApp() {
   return {
     expenses: [],
+    loading: true,
     openFormExpense: false,
     formExpense: { id: '', title: '', description: '', amount: '', expense_date: '', category: '', payment_method: '', notes: '' },
     expenseCategories: [
@@ -18,7 +19,9 @@ function despesasApp() {
         window.location.href = 'login.html'
         return
       }
+      this.loading = true
       await this.fetchExpenses()
+      this.loading = false
     },
 
     async fetchExpenses() {

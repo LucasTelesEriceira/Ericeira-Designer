@@ -1,5 +1,6 @@
 function agendamentosApp() {
   return {
+    loading: true,
     schedulingToday: [],
     schedulingTomorrow: [],
     schedulingOther_days: [],
@@ -34,6 +35,7 @@ function agendamentosApp() {
         window.location.href = 'login.html'
         return
       }
+      this.loading = true
       await Promise.all([
         this.fetchSchedulingToday(),
         this.fetchSchedulingTomorrow(),
@@ -41,6 +43,7 @@ function agendamentosApp() {
       ])
       this.computeClientList()
       await this.fetchServices()
+      this.loading = false
       this.$watch('formScheduling.service', (serviceName) => {
         const s = this.services.find((s) => s.nome === serviceName)
         if (s) {

@@ -1,6 +1,7 @@
 function faturasApp() {
   return {
     inputInvoice: [],
+    loading: true,
     openFormInvoice: false,
     deletingInvoice: false,
     formInputInvoice: { items: [] },
@@ -22,8 +23,10 @@ function faturasApp() {
         window.location.href = 'login.html'
         return
       }
+      this.loading = true
       await this.fetchServices()
       await this.fetchInputInvoices()
+      this.loading = false
       this.checkQueryParams()
 
       this.$watch(

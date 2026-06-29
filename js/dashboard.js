@@ -1,5 +1,6 @@
 function dashboardApp() {
   return {
+    loading: true,
     schedulingToday: [],
     schedulingTomorrow: [],
     schedulingOther_days: [],
@@ -15,6 +16,7 @@ function dashboardApp() {
         window.location.href = 'login.html'
         return
       }
+      this.loading = true
       await Promise.all([
         this.fetchSchedulingToday(),
         this.fetchSchedulingTomorrow(),
@@ -24,6 +26,7 @@ function dashboardApp() {
         this.fetchExpenses(),
         this.fetchConcludedCount(),
       ])
+      this.loading = false
     },
 
     async fetchSchedulingToday() {

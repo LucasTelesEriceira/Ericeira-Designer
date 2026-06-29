@@ -54,15 +54,18 @@
 
             <div class="grid grid-cols-3 gap-3 mb-8">
                 <div class="bg-white rounded-xl p-3 border border-gray-200 text-center shadow-sm">
-                    <p class="text-2xl font-bold text-pink-600" x-text="schedulingToday.length"></p>
+                    <div x-show="loading" class="h-7 w-10 bg-gray-200 rounded animate-pulse mx-auto"></div>
+<p x-show="!loading" class="text-2xl font-bold text-pink-600" x-text="schedulingToday.length"></p>
                     <p class="text-xs text-gray-400 mt-0.5">hoje</p>
                 </div>
                 <div class="bg-white rounded-xl p-3 border border-gray-200 text-center shadow-sm">
-                    <p class="text-2xl font-bold text-indigo-500" x-text="schedulingTomorrow.length"></p>
+                    <div x-show="loading" class="h-7 w-10 bg-gray-200 rounded animate-pulse mx-auto"></div>
+<p x-show="!loading" class="text-2xl font-bold text-indigo-500" x-text="schedulingTomorrow.length"></p>
                     <p class="text-xs text-gray-400 mt-0.5">amanhã</p>
                 </div>
                 <div class="bg-white rounded-xl p-3 border border-gray-200 text-center shadow-sm">
-                    <p class="text-2xl font-bold text-emerald-500" x-text="servicesCount"></p>
+                    <div x-show="loading" class="h-7 w-10 bg-gray-200 rounded animate-pulse mx-auto"></div>
+<p x-show="!loading" class="text-2xl font-bold text-emerald-500" x-text="servicesCount"></p>
                     <p class="text-xs text-gray-400 mt-0.5">serviços</p>
                 </div>
             </div>

@@ -1,6 +1,7 @@
 function clientesApp() {
   return {
     clientList: [],
+    loading: true,
     selectedClient: null,
     clientSearch: '',
 
@@ -20,7 +21,9 @@ function clientesApp() {
         window.location.href = 'login.html'
         return
       }
+      this.loading = true
       await this.fetchClients()
+      this.loading = false
     },
 
     async fetchClients() {
@@ -96,7 +99,9 @@ function clientesApp() {
         }
 
         this.openClientForm = false
-        await this.fetchClients()
+        this.loading = true
+      await this.fetchClients()
+      this.loading = false
       } catch (error) {
         console.error('Erro ao salvar cliente:', error)
         alert('Erro ao salvar cliente')

@@ -1,5 +1,6 @@
 function agendaApp() {
   return {
+    loading: true,
     form: {
       name: '',
       whatsapp: '',
@@ -428,10 +429,15 @@ function agendaApp() {
     },
 
     init() {
-      this.fetchServices()
-      this.fetchScheduling()
-      this.populateWeeks()
-      this.updateAvailableHorarios()
+      this.loading = true
+      Promise.all([
+        this.fetchServices(),
+        this.fetchScheduling(),
+      ]).then(() => {
+        this.populateWeeks()
+        this.updateAvailableHorarios()
+        this.loading = false
+      })
       this.fetchClientScheduling()
     },
   }
