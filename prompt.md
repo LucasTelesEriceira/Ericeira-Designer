@@ -4,7 +4,6 @@ Me ajude com essa tarefa de querbra os prompts em partes.
 
 
 Próximos passos (prioridade)
-4. Notificações amigáveis — alert() usado em todo lugar. Substituir por toasts.
 5. Validação consistente — Só faturas.js valida. servicos.js, despesas.js, clientes.js enviam dados vazios.
 6. Bloqueios manuais ("Futuro") — blockedDates, blockedDayOfWeek, blockedTimeRanges declarados mas nunca populados via UI. As estruturas e stubs já existem.
 7. Paginação — Todas as listas crescem sem limite.

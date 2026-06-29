@@ -77,7 +77,7 @@ function despesasApp() {
 
         if (!response.ok) {
           const error = await response.json()
-          alert('Erro: ' + (error.error || 'Falha ao salvar'))
+          showToast('Erro: ' + (error.error || 'Falha ao salvar'))
           return
         }
 
@@ -112,7 +112,7 @@ function despesasApp() {
 
         if (!response.ok) {
           const error = await response.json()
-          alert('Erro: ' + (error.error || 'Falha ao excluir'))
+          showToast('Erro: ' + (error.error || 'Falha ao excluir'))
           return
         }
 

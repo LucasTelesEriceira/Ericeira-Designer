@@ -183,13 +183,13 @@ function agendaApp() {
             'Erro ao deletar agendamento:',
             result.error || result.message
           )
-          alert(
+          showToast(
             `Erro ao cancelar agendamento: ${result.error || 'Tente novamente'}`
           )
         }
       } catch (error) {
         console.error('Erro ao deletar agendamento:', error)
-        alert('Erro ao cancelar agendamento. Verifique sua conexão.')
+        showToast('Erro ao cancelar agendamento. Verifique sua conexão.')
       }
     },
 

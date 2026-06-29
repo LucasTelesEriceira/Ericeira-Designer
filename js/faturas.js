@@ -225,7 +225,7 @@ function faturasApp() {
 
         if (!response.ok) {
           const error = await response.json()
-          alert('Erro: ' + (error.error || 'Falha ao salvar'))
+          showToast('Erro: ' + (error.error || 'Falha ao salvar'))
           return
         }
 
@@ -296,7 +296,7 @@ function faturasApp() {
 
         if (!response.ok) {
           const error = await response.json()
-          alert('Erro: ' + (error.error || 'Falha ao cancelar'))
+          showToast('Erro: ' + (error.error || 'Falha ao cancelar'))
           this.deletingInvoice = false
           return
         }

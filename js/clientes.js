@@ -94,7 +94,7 @@ function clientesApp() {
         const result = await response.json()
 
         if (!response.ok) {
-          alert(result.error || 'Erro ao salvar cliente')
+          showToast(result.error || 'Erro ao salvar cliente')
           return
         }
 
@@ -104,7 +104,7 @@ function clientesApp() {
       this.loading = false
       } catch (error) {
         console.error('Erro ao salvar cliente:', error)
-        alert('Erro ao salvar cliente')
+        showToast('Erro ao salvar cliente')
       }
     },
 

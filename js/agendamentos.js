@@ -192,7 +192,7 @@ function agendamentosApp() {
           )
         } else {
           const error = await response.json()
-          alert('Erro: ' + (error.error || 'Falha ao excluir'))
+          showToast('Erro: ' + (error.error || 'Falha ao excluir'))
         }
       } catch (error) {
         console.error('Erro ao excluir agendamento:', error)
@@ -323,7 +323,7 @@ function agendamentosApp() {
     async postScheduling() {
       const f = this.formScheduling
       if (!f.name || !f.whatsapp || !f.service || !f.date || !f.time) {
-        alert('Preencha todos os campos obrigatórios')
+        showToast('Preencha todos os campos obrigatórios', 'warning')
         return
       }
 
@@ -354,7 +354,7 @@ function agendamentosApp() {
         const result = await response.json()
 
         if (!response.ok) {
-          alert('Erro: ' + (result.error || 'Falha ao salvar'))
+          showToast('Erro: ' + (result.error || 'Falha ao salvar'))
           return
         }
 
@@ -378,7 +378,7 @@ function agendamentosApp() {
         this.schedulingClientSearch = ''
       } catch (error) {
         console.error('Erro ao salvar agendamento:', error)
-        alert('Erro ao salvar agendamento')
+        showToast('Erro ao salvar agendamento')
       }
     },
 

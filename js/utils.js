@@ -29,6 +29,25 @@ function logout() {
   window.location.href = 'login.html'
 }
 
+function showToast(message, type = 'error') {
+  const container = document.getElementById('toast-container')
+  if (!container) return
+  const colors = {
+    error: 'bg-red-500',
+    success: 'bg-green-500',
+    warning: 'bg-yellow-500',
+    info: 'bg-blue-500',
+  }
+  const toast = document.createElement('div')
+  toast.className = `${colors[type] || colors.error} text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium mb-2 transition-opacity duration-300`
+  toast.textContent = message
+  container.appendChild(toast)
+  setTimeout(() => {
+    toast.style.opacity = '0'
+    setTimeout(() => toast.remove(), 300)
+  }, 3500)
+}
+
 function formatDate(date) {
   if (!date) return ''
   const [year, month, day] = date.split('-')
