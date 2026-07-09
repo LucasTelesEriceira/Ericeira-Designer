@@ -3,7 +3,17 @@ function despesasApp() {
     expenses: [],
     loading: true,
     openFormExpense: false,
-    formExpense: { id: '', title: '', description: '', amount: '', expense_date: '', category: '', payment_method: '', notes: '' },
+    formExpense: {
+      id: '',
+      title: '',
+      description: '',
+      amount: '',
+      expense_date: '',
+      category: '',
+      payment_method: '',
+      notes: '',
+    },
+    errors: {},
     expenseCategories: [
       { value: 'materials', label: 'Materiais' },
       { value: 'tools', label: 'Ferramentas' },
@@ -44,22 +54,41 @@ function despesasApp() {
           title: expense.title || '',
           description: expense.description || '',
           amount: expense.amount || '',
-          expense_date: expense.expense_date || new Date().toISOString().split('T')[0],
+          expense_date:
+            expense.expense_date || new Date().toISOString().split('T')[0],
           category: expense.category || '',
           payment_method: expense.payment_method || 'pix',
           notes: expense.notes || '',
         }
       } else {
         this.formExpense = {
-          id: '', title: '', description: '', amount: '',
+          id: '',
+          title: '',
+          description: '',
+          amount: '',
           expense_date: new Date().toISOString().split('T')[0],
-          category: '', payment_method: 'pix', notes: '',
+          category: '',
+          payment_method: 'pix',
+          notes: '',
         }
       }
       this.openFormExpense = true
     },
 
+    validateExpenseForm() {
+      this.errors = {}
+      if (!this.formExpense.title) this.errors.title = 'Título é obrigatório'
+      if (!this.formExpense.amount || parseFloat(f.valueReceived) <= 0)
+        this.errors.amount = 'Valor é obrigatório'
+      if (!this.formExpense.expense_date)
+        this.errors.data = 'Data é obrigatória'
+      if (!this.formExpense.category)
+        this.errors.category = 'Categoria é obrigatória'
+      return Object.keys(this.errors).length === 0
+    },
+
     async postExpense() {
+      if (!this.validateExpenseForm()) return
       try {
         const response = await fetch(
           getUrlBase()[getEnv()] + '/json/api/v1/expenses',
@@ -83,14 +112,27 @@ function despesasApp() {
 
         const newExpense = await response.json()
         if (this.formExpense.id) {
-          const index = this.expenses.findIndex(e => e.id === this.formExpense.id)
+          const index = this.expenses.findIndex(
+            (e) => e.id === this.formExpense.id
+          )
           if (index !== -1) this.expenses[index] = newExpense.meta_input
         } else {
           this.expenses.push(newExpense.meta_input)
         }
-        this.expenses.sort((a, b) => b.expense_date.localeCompare(a.expense_date))
+        this.expenses.sort((a, b) =>
+          b.expense_date.localeCompare(a.expense_date)
+        )
         this.openFormExpense = false
-        this.formExpense = { id: '', title: '', description: '', amount: '', expense_date: '', category: '', payment_method: '', notes: '' }
+        this.formExpense = {
+          id: '',
+          title: '',
+          description: '',
+          amount: '',
+          expense_date: '',
+          category: '',
+          payment_method: '',
+          notes: '',
+        }
       } catch (error) {
         console.error('Erro ao salvar despesa:', error)
       }

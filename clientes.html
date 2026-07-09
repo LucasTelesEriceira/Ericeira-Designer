@@ -2,45 +2,25 @@
 <html lang="pt-BR">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png" />
-    <link rel="manifest" href="assets/site.webmanifest" />
-    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png"/>
+    <link rel="manifest" href="assets/site.webmanifest"/>
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"/>
     <title>Clientes — Ericeira Designer</title>
-    <link href="tailwind_theme/tailwind.css" rel="stylesheet" type="text/css" />
+    <link href="tailwind_theme/tailwind.css" rel="stylesheet" type="text/css"/>
     <script defer src="js/Alpine-Collapse.js"></script>
     <script defer src="js/Alpine.js"></script>
-    <style>
-        [x-cloak] {
-            display: none !important;
-        }
-
-        body {
-            font-family: "Roboto", sans-serif;
-        }
-
-        .appt-card {
-            transition: box-shadow 0.15s ease, border-color 0.15s ease;
-        }
-
-        .appt-card:hover {
-            box-shadow: 0 0 0 2px #f9a8d4;
-            border-color: #f9a8d4;
-        }
-    </style>
+    <style>[x-cloak] { display: none !important; } body { font-family: "Roboto", sans-serif; } .appt-card { transition: box-shadow 0.15s ease, border-color 0.15s ease; } .appt-card:hover { box-shadow: 0 0 0 2px #f9a8d4; border-color: #f9a8d4; }</style>
 </head>
 
 <body class="bg-gray-50" x-data="clientesApp">
     <header class="fixed inset-x-0 z-50 bg-white border-b border-gray-200 h-14 flex items-center px-4 gap-3">
-        <a href="dashboard.html"
-            class="p-2 -ml-1 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-1.5"
-            aria-label="Voltar ao painel">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        <a href="dashboard.html" class="p-2 -ml-1 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-1.5" aria-label="Voltar ao painel">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
             </svg>
             <span class="text-sm font-medium hidden sm:inline">Painel</span>
         </a>
@@ -49,20 +29,15 @@
         </div>
         <div class="flex items-center gap-1.5 ml-auto">
             <div class="relative" x-data="{ avatarOpen: false }">
-                <button @click="avatarOpen = !avatarOpen"
-                    class="h-8 w-8 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center hover:bg-pink-200 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-300">E</button>
-                <div x-show="avatarOpen" x-cloak @click.outside="avatarOpen = false" x-transition
-                    class="absolute right-0 top-10 bg-white rounded-xl shadow-xl border border-gray-200 py-1 w-48 z-50">
+                <button @click="avatarOpen = !avatarOpen" class="h-8 w-8 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center hover:bg-pink-200 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-300">E</button>
+                <div x-show="avatarOpen" x-cloak @click.outside="avatarOpen = false" x-transition class="absolute right-0 top-10 bg-white rounded-xl shadow-xl border border-gray-200 py-1 w-48 z-50">
                     <div class="px-4 py-2.5 border-b border-gray-100">
                         <p class="text-xs font-semibold text-gray-900">Ericeira Designer</p>
                         <p class="text-xs text-gray-400 mt-0.5">Profissional</p>
                     </div>
-                    <button @click="logout()"
-                        class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    <button @click="logout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                         </svg>
                         Sair
                     </button>
@@ -78,23 +53,17 @@
                     <p class="text-sm text-gray-400 mt-0.5">Histórico completo de atendimentos</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span class="bg-purple-50 text-purple-700 text-xs font-bold px-3 py-1.5 rounded-full"
-                        x-text="clientList.length + ' clientes'"></span>
-                    <button @click="openNewClientForm()"
-                        class="bg-purple-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-purple-700 transition-colors">+
+                    <span class="bg-purple-50 text-purple-700 text-xs font-bold px-3 py-1.5 rounded-full" x-text="clientList.length + ' clientes'"></span>
+                    <button @click="openNewClientForm()" class="bg-purple-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-purple-700 transition-colors">+
                         Novo</button>
                 </div>
             </div>
 
             <div class="relative mb-5">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-                <input type="text" x-model="clientSearch"
-                    class="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent bg-white"
-                    placeholder="Buscar cliente por nome ou WhatsApp..." />
+                <input type="text" x-model="clientSearch" class="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent bg-white" placeholder="Buscar cliente por nome ou WhatsApp..."/>
             </div>
 
             <div x-show="loading" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
@@ -103,8 +72,7 @@
             </div>
             <div x-show="!loading && filteredClients().length === 0" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
                 <p class="text-3xl mb-2">👥</p>
-                <p class="text-sm font-medium text-gray-500"
-                    x-text="clientSearch ? 'Nenhum cliente encontrado para esta busca' : 'Nenhum cliente cadastrado'">
+                <p class="text-sm font-medium text-gray-500" x-text="clientSearch ? 'Nenhum cliente encontrado para esta busca' : 'Nenhum cliente cadastrado'">
                 </p>
                 <p x-show="!clientSearch" class="text-xs text-gray-400 mt-1">Os clientes aparecerão aqui após o primeiro
                     agendamento</p>
@@ -113,60 +81,46 @@
             <div class="space-y-3">
                 <template x-for="client in filteredClients()" :key="client.id">
                     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                        <div @click="selectClient(client)"
-                            class="w-full p-4 text-left flex items-start gap-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                            role="button" tabindex="0">
-                            <div
-                                class="h-10 w-10 rounded-full bg-purple-100 text-purple-700 font-bold text-sm flex items-center justify-center shrink-0 mt-0.5">
+                        <div @click="selectClient(client)" class="w-full p-4 text-left flex items-start gap-3 cursor-pointer hover:bg-gray-50 transition-colors" role="button" tabindex="0">
+                            <div class="h-10 w-10 rounded-full bg-purple-100 text-purple-700 font-bold text-sm flex items-center justify-center shrink-0 mt-0.5">
                                 <span x-text="client.name ? client.name.charAt(0).toUpperCase() : '?'"></span>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center justify-between gap-2 mb-0.5">
                                     <p class="font-semibold text-gray-900 text-sm truncate" x-text="client.name"></p>
-                                    <span
-                                        class="shrink-0 bg-purple-50 text-purple-700 text-xs font-bold px-2 py-0.5 rounded-full border border-purple-100"
-                                        x-text="client.totalVisits + (client.totalVisits === 1 ? ' visita' : ' visitas')"></span>
+                                    <span class="shrink-0 bg-purple-50 text-purple-700 text-xs font-bold px-2 py-0.5 rounded-full border border-purple-100" x-text="client.totalVisits + (client.totalVisits === 1 ? ' visita' : ' visitas')"></span>
                                 </div>
                                 <div class="flex items-center gap-3 text-xs text-gray-400 mt-1">
                                     <span class="flex items-center gap-1">
                                         <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
-                                            <path
-                                                d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+                                            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                                         </svg>
                                         <span x-text="client.whatsapp"></span>
                                     </span>
-                                    <span x-show="client.lastVisit"
-                                        x-text="'Último: ' + formatDate(client.lastVisit)"></span>
+                                    <span x-show="client.lastVisit" x-text="'Último: ' + formatDate(client.lastVisit)"></span>
                                 </div>
                             </div>
-                            <svg class="h-4 w-4 text-gray-400 shrink-0 mt-1 transition-transform duration-200"
-                                :class="selectedClient?.id === client.id ? 'rotate-180' : ''" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            <svg class="h-4 w-4 text-gray-400 shrink-0 mt-1 transition-transform duration-200" :class="selectedClient?.id === client.id ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
                             </svg>
                         </div>
 
-                        <div x-show="selectedClient?.id === client.id" x-cloak x-collapse
-                            class="border-t border-gray-100">
+                        <div x-show="selectedClient?.id === client.id" x-cloak x-collapse class="border-t border-gray-100">
                             <div class="p-4 space-y-3">
                                 <div class="flex items-center justify-between">
                                     <div class="flex gap-2">
-                                        <a :href="'agendamentos.html?clientName=' + encodeURIComponent(client.name) + '&whatsapp=' + encodeURIComponent(client.whatsapp)"
-                                            class="text-xs bg-pink-50 text-pink-700 font-semibold px-3 py-1.5 rounded-lg hover:bg-pink-100 transition-colors">
+                                        <a :href="'agendamentos.html?clientName=' + encodeURIComponent(client.name) + '&whatsapp=' + encodeURIComponent(client.whatsapp)" class="text-xs bg-pink-50 text-pink-700 font-semibold px-3 py-1.5 rounded-lg hover:bg-pink-100 transition-colors">
                                             + Novo agendamento
                                         </a>
-                                        <button @click="openHistoryModal(client)"
-                                            class="text-xs bg-blue-50 text-blue-700 font-semibold px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors">
+                                        <button @click="openHistoryModal(client)" class="text-xs bg-blue-50 text-blue-700 font-semibold px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors">
                                             Histórico
                                         </button>
-                                        <button @click="openEditClientForm(client)"
-                                            class="text-xs bg-gray-100 text-gray-700 font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors">
+                                        <button @click="openEditClientForm(client)" class="text-xs bg-gray-100 text-gray-700 font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors">
                                             Editar
                                         </button>
                                     </div>
                                 </div>
-                                <p x-show="client.notes" class="text-xs text-gray-500 bg-gray-50 rounded-lg p-3"
-                                    x-text="'Obs: ' + client.notes"></p>
+                                <p x-show="client.notes" class="text-xs text-gray-500 bg-gray-50 rounded-lg p-3" x-text="'Obs: ' + client.notes"></p>
                             </div>
                         </div>
                     </div>
@@ -175,85 +129,51 @@
         </div>
 
         <!-- Modal Cliente -->
-        <div x-show="openClientForm" x-cloak
-            class="fixed inset-0 bg-black/40 z-50 flex items-end lg:items-center justify-center"
-            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100">
-            <div @click.outside="openClientForm = false"
-                class="bg-white w-full lg:max-w-sm lg:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto"
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="translate-y-full lg:translate-y-0 lg:scale-95"
-                x-transition:enter-end="translate-y-0 lg:scale-100">
-                <div
-                    class="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between z-10">
+        <div x-show="openClientForm" x-cloak class="fixed inset-0 bg-black/40 z-50 flex items-end lg:items-center justify-center" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            <div @click.outside="openClientForm = false" class="bg-white w-full lg:max-w-sm lg:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-y-full lg:translate-y-0 lg:scale-95" x-transition:enter-end="translate-y-0 lg:scale-100">
+                <div class="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between z-10">
                     <h3 class="font-bold text-gray-900" x-text="editingClient ? 'Editar cliente' : 'Novo cliente'"></h3>
-                    <button @click="openClientForm = false"
-                        class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100"><svg
-                            xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    <button @click="openClientForm = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                         </svg></button>
                 </div>
                 <div class="p-5 space-y-4">
                     <div>
                         <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Nome</label>
-                        <input type="text" x-model="clientFormName"
-                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            placeholder="Nome do cliente">
+                        <input type="text" x-model="clientFormName" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-400" :class="errors.name ? 'border-red-400' : 'border-gray-200'" placeholder="Nome do cliente">
+                        <p x-show="errors.name" x-text="errors.name" class="text-xs text-red-500 mt-1"></p>
                     </div>
                     <div>
                         <label class="text-xs font-semibold text-gray-700 mb-1.5 block">WhatsApp</label>
-                        <input type="text" x-model="clientFormWhatsapp"
-                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            placeholder="(11) 99999-9999">
+                        <input type="text" x-model="clientFormWhatsapp" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-400" :class="errors.whatsapp ? 'border-red-400' : 'border-gray-200'" placeholder="(11) 99999-9999">
+                        <p x-show="errors.whatsapp" x-text="errors.whatsapp" class="text-xs text-red-500 mt-1"></p>
                     </div>
                     <div>
                         <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Observações</label>
-                        <textarea x-model="clientFormNotes"
-                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            placeholder="Anotações internas..." rows="3"></textarea>
+                        <textarea x-model="clientFormNotes" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="Anotações internas..." rows="3"></textarea>
                     </div>
                     <div class="flex gap-3 pt-2">
-                        <button @click="openClientForm = false"
-                            class="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-colors text-sm">Cancelar</button>
-                        <button @click="saveClient()"
-                            class="flex-1 bg-purple-600 text-white font-bold py-3 rounded-xl hover:bg-purple-700 transition-colors text-sm"
-                            x-text="editingClient ? 'Salvar' : 'Criar'"></button>
+                        <button @click="openClientForm = false" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-colors text-sm">Cancelar</button>
+                        <button @click="saveClient()" class="flex-1 bg-purple-600 text-white font-bold py-3 rounded-xl hover:bg-purple-700 transition-colors text-sm" x-text="editingClient ? 'Salvar' : 'Criar'"></button>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Modal Histórico -->
-        <div x-show="openHistory" x-cloak
-            class="fixed inset-0 bg-black/40 z-50 flex items-end lg:items-center justify-center"
-            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100">
-            <div @click.outside="openHistory = false"
-                class="bg-white w-full lg:max-w-lg lg:rounded-2xl rounded-t-2xl max-h-[80vh] overflow-y-auto"
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="translate-y-full lg:translate-y-0 lg:scale-95"
-                x-transition:enter-end="translate-y-0 lg:scale-100">
-                <div
-                    class="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between z-10">
+        <div x-show="openHistory" x-cloak class="fixed inset-0 bg-black/40 z-50 flex items-end lg:items-center justify-center" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            <div @click.outside="openHistory = false" class="bg-white w-full lg:max-w-lg lg:rounded-2xl rounded-t-2xl max-h-[80vh] overflow-y-auto" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-y-full lg:translate-y-0 lg:scale-95" x-transition:enter-end="translate-y-0 lg:scale-100">
+                <div class="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between z-10">
                     <h3 class="font-bold text-gray-900" x-text="historyClient?.name + ' — Histórico'"></h3>
-                    <button @click="openHistory = false"
-                        class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100"><svg
-                            xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    <button @click="openHistory = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                         </svg></button>
                 </div>
                 <div class="p-4">
                     <div class="flex flex-wrap gap-2 mb-4">
-                        <button @click="historyFilter = ''"
-                            class="text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
-                            :class="!historyFilter ? 'bg-pink-100 text-pink-700 font-bold' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">Todos</button>
+                        <button @click="historyFilter = ''" class="text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors" :class="!historyFilter ? 'bg-pink-100 text-pink-700 font-bold' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">Todos</button>
                         <template x-for="s in historyServices" :key="s">
-                            <button @click="historyFilter = s"
-                                class="text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
-                                :class="historyFilter === s ? 'bg-pink-100 text-pink-700 font-bold' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-                                x-text="s"></button>
+                            <button @click="historyFilter = s" class="text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors" :class="historyFilter === s ? 'bg-pink-100 text-pink-700 font-bold' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" x-text="s"></button>
                         </template>
                     </div>
 
@@ -267,9 +187,7 @@
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center justify-between gap-2">
                                         <span class="font-semibold text-gray-900 text-sm" x-text="appt.service"></span>
-                                        <span class="shrink-0 text-xs font-bold px-2 py-0.5 rounded-full"
-                                            :class="appt.status === 'concluded' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-pink-50 text-pink-700 border border-pink-100'"
-                                            x-text="appt.status === 'concluded' ? 'Concluído' : 'Ativo'"></span>
+                                        <span class="shrink-0 text-xs font-bold px-2 py-0.5 rounded-full" :class="appt.status === 'concluded' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-pink-50 text-pink-700 border border-pink-100'" x-text="appt.status === 'concluded' ? 'Concluído' : 'Ativo'"></span>
                                     </div>
                                     <div class="flex items-center gap-2 text-xs text-gray-400 mt-1">
                                         <span x-text="formatDate(appt.date) + ' às ' + appt.time"></span>

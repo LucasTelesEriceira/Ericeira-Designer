@@ -1,139 +1,422 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
+  <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png" />
-    <link rel="manifest" href="assets/site.webmanifest" />
-    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="assets/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="assets/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="assets/favicon-16x16.png"
+    />
+    <link
+      rel="manifest"
+      href="assets/site.webmanifest"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto&display=swap"
+      rel="stylesheet"
+    />
     <title>Serviços — Ericeira Designer</title>
-    <link href="tailwind_theme/tailwind.css" rel="stylesheet" type="text/css" />
-    <script defer src="js/Alpine.js"></script>
+    <link
+      href="tailwind_theme/tailwind.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <script
+      defer
+      src="js/Alpine.js"
+    ></script>
     <style>
-        [x-cloak] { display: none !important; }
-        body { font-family: "Roboto", sans-serif; }
-        .appt-card { transition: box-shadow 0.15s ease, border-color 0.15s ease; }
-        .appt-card:hover { box-shadow: 0 0 0 2px #f9a8d4; border-color: #f9a8d4; }
+      [x-cloak] {
+        display: none !important;
+      }
+      body {
+        font-family: 'Roboto', sans-serif;
+      }
+      .appt-card {
+        transition:
+          box-shadow 0.15s ease,
+          border-color 0.15s ease;
+      }
+      .appt-card:hover {
+        box-shadow: 0 0 0 2px #f9a8d4;
+        border-color: #f9a8d4;
+      }
     </style>
-</head>
-<body class="bg-gray-50" x-data="servicosApp">
-    <header class="fixed inset-x-0 z-50 bg-white border-b border-gray-200 h-14 flex items-center px-4 gap-3">
-        <a href="dashboard.html"
-            class="p-2 -ml-1 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-1.5"
-            aria-label="Voltar ao painel">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
-            <span class="text-sm font-medium hidden sm:inline">Painel</span>
-        </a>
-        <div class="flex items-center gap-2 min-w-0 flex-1">
-            <span class="font-semibold text-gray-900 text-sm">Serviços</span>
-        </div>
-        <div class="flex items-center gap-1.5 ml-auto">
-            <div class="relative" x-data="{ avatarOpen: false }">
-                <button @click="avatarOpen = !avatarOpen"
-                    class="h-8 w-8 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center hover:bg-pink-200 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-300">E</button>
-                <div x-show="avatarOpen" x-cloak @click.outside="avatarOpen = false" x-transition
-                    class="absolute right-0 top-10 bg-white rounded-xl shadow-xl border border-gray-200 py-1 w-48 z-50">
-                    <div class="px-4 py-2.5 border-b border-gray-100">
-                        <p class="text-xs font-semibold text-gray-900">Ericeira Designer</p>
-                        <p class="text-xs text-gray-400 mt-0.5">Profissional</p>
-                    </div>
-                    <button @click="logout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                        Sair
-                    </button>
-                </div>
+  </head>
+  <body
+    class="bg-gray-50"
+    x-data="servicosApp"
+  >
+    <header
+      class="fixed inset-x-0 z-50 bg-white border-b border-gray-200 h-14 flex items-center px-4 gap-3"
+    >
+      <a
+        href="dashboard.html"
+        class="p-2 -ml-1 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-1.5"
+        aria-label="Voltar ao painel"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+        <span class="text-sm font-medium hidden sm:inline">Painel</span>
+      </a>
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <span class="font-semibold text-gray-900 text-sm">Serviços</span>
+      </div>
+      <div class="flex items-center gap-1.5 ml-auto">
+        <div
+          class="relative"
+          x-data="{ avatarOpen: false }"
+        >
+          <button
+            @click="avatarOpen = !avatarOpen"
+            class="h-8 w-8 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center hover:bg-pink-200 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-300"
+          >
+            E
+          </button>
+          <div
+            x-show="avatarOpen"
+            x-cloak
+            @click.outside="avatarOpen = false"
+            x-transition
+            class="absolute right-0 top-10 bg-white rounded-xl shadow-xl border border-gray-200 py-1 w-48 z-50"
+          >
+            <div class="px-4 py-2.5 border-b border-gray-100">
+              <p class="text-xs font-semibold text-gray-900">
+                Ericeira Designer
+              </p>
+              <p class="text-xs text-gray-400 mt-0.5">Profissional</p>
             </div>
+            <button
+              @click="logout()"
+              class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+              Sair
+            </button>
+          </div>
         </div>
+      </div>
     </header>
     <main class="min-h-screen pt-14">
-        <div class="p-4 lg:p-6 max-w-3xl mx-auto">
-            <div class="flex items-center justify-between mb-5">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-900">Serviços</h2>
-                    <p class="text-sm text-gray-400 mt-0.5">Gerencie os serviços oferecidos</p>
-                </div>
-                <button @click="openFormService = true; formService = { id: '', nome: '', valor: '', duracao: '' }"
-                    class="flex items-center gap-2 bg-pink-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-pink-600 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
-                    Novo serviço
-                </button>
-            </div>
-            <div x-show="loading" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
-              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500 mx-auto"></div>
-              <p class="text-sm font-medium text-gray-500 mt-4">Carregando serviços...</p>
-            </div>
-            <div x-show="!loading && services.length === 0" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
-                <p class="text-3xl mb-2">✂️</p>
-                <p class="text-sm font-medium text-gray-500">Nenhum serviço cadastrado</p>
-            </div>
-            <div class="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <template x-for="(service, index) in services" :key="index">
-                    <div class="appt-card group bg-white rounded-2xl border border-gray-200 p-5 flex flex-col gap-4 cursor-pointer shadow-sm relative"
-                        @click="openFormService = true; formService.id = service.id; formService.nome = service.nome; formService.duracao = service.duracao; formService.valor = service.valor">
-                        <button @click.stop="deleteService(service.id)"
-                            class="absolute top-3 right-3 p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
-                            aria-label="Excluir serviço">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                        </button>
-                        <div class="h-11 w-11 rounded-xl bg-emerald-50 flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="font-bold text-gray-900 text-sm leading-snug" x-text="service.nome"></p>
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-1 rounded-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span x-text="service.duracao + ' min'"></span>
-                            </span>
-                            <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full"><span x-text="'R$ ' + service.valor"></span></span>
-                        </div>
-                        <div class="pt-1 border-t border-gray-100 flex items-center justify-between">
-                            <span class="text-xs text-gray-400">por sessão</span>
-                            <span class="inline-flex items-center gap-1 text-xs text-pink-500 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.415.586H9v-2.414a2 2 0 01.586-1.414z" /></svg>
-                                Editar
-                            </span>
-                        </div>
-                    </div>
-                </template>
-            </div>
+      <div class="p-4 lg:p-6 max-w-3xl mx-auto">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">Serviços</h2>
+            <p class="text-sm text-gray-400 mt-0.5">
+              Gerencie os serviços oferecidos
+            </p>
+          </div>
+          <button
+            @click="openFormService = true; formService = { id: '', nome: '', valor: '', duracao: '' }"
+            class="flex items-center gap-2 bg-pink-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-pink-600 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Novo serviço
+          </button>
         </div>
+        <div
+          x-show="loading"
+          class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center"
+        >
+          <div
+            class="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500 mx-auto"
+          ></div>
+          <p class="text-sm font-medium text-gray-500 mt-4">
+            Carregando serviços...
+          </p>
+        </div>
+        <div
+          x-show="!loading && services.length === 0"
+          class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center"
+        >
+          <p class="text-3xl mb-2">✂️</p>
+          <p class="text-sm font-medium text-gray-500">
+            Nenhum serviço cadastrado
+          </p>
+        </div>
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <template
+            x-for="(service, index) in services"
+            :key="index"
+          >
+            <div
+              class="appt-card group bg-white rounded-2xl border border-gray-200 p-5 flex flex-col gap-4 cursor-pointer shadow-sm relative"
+              @click="openFormService = true; formService.id = service.id; formService.nome = service.nome; formService.duracao = service.duracao; formService.valor = service.valor"
+            >
+              <button
+                @click.stop="deleteService(service.id)"
+                class="absolute top-3 right-3 p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
+                aria-label="Excluir serviço"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+              </button>
+              <div
+                class="h-11 w-11 rounded-xl bg-emerald-50 flex items-center justify-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 text-emerald-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  />
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p
+                  class="font-bold text-gray-900 text-sm leading-snug"
+                  x-text="service.nome"
+                ></p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-1 rounded-full"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-3 w-3"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <span x-text="service.duracao + ' min'"></span>
+                </span>
+                <span
+                  class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full"
+                >
+                  <span x-text="'R$ ' + service.valor"></span>
+                </span>
+              </div>
+              <div
+                class="pt-1 border-t border-gray-100 flex items-center justify-between"
+              >
+                <span class="text-xs text-gray-400">por sessão</span>
+                <span
+                  class="inline-flex items-center gap-1 text-xs text-pink-500 font-semibold opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-3.5 w-3.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.415.586H9v-2.414a2 2 0 01.586-1.414z"
+                    />
+                  </svg>
+                  Editar
+                </span>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
 
-        <!-- Modal Service Form -->
-        <div x-show="openFormService" x-cloak class="fixed inset-0 bg-black/40 z-50 flex items-end lg:items-center justify-center" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-            <div @click.outside="openFormService = false" class="bg-white w-full lg:max-w-lg lg:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-y-full lg:translate-y-0 lg:scale-95" x-transition:enter-end="translate-y-0 lg:scale-100">
-                <div class="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between z-10">
-                    <h3 class="font-bold text-gray-900" x-text="formService.id ? 'Editar serviço' : 'Novo serviço'"></h3>
-                    <button @click="openFormService = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
-                </div>
-                <div class="p-5 space-y-4">
-                    <div>
-                        <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Nome do serviço</label>
-                        <input type="text" x-model="formService.nome" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="Ex: Corte Feminino">
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Valor (R$)</label>
-                            <input type="number" step="0.01" x-model="formService.valor" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="0,00">
-                        </div>
-                        <div>
-                            <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Duração (min)</label>
-                            <input type="number" step="5" x-model="formService.duracao" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="60">
-                        </div>
-                    </div>
-                    <div class="flex gap-3 pt-2">
-                        <button @click="openFormService = false" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-colors text-sm">Cancelar</button>
-                        <button @click="postService()" class="flex-1 bg-pink-500 text-white font-bold py-3 rounded-xl hover:bg-pink-600 transition-colors text-sm" x-text="formService.id ? 'Atualizar' : 'Salvar'"></button>
-                    </div>
-                </div>
+      <!-- Modal Service Form -->
+      <div
+        x-show="openFormService"
+        x-cloak
+        class="fixed inset-0 bg-black/40 z-50 flex items-end lg:items-center justify-center"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+      >
+        <div
+          @click.outside="openFormService = false"
+          class="bg-white w-full lg:max-w-lg lg:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto"
+          x-transition:enter="transition ease-out duration-200"
+          x-transition:enter-start="translate-y-full lg:translate-y-0 lg:scale-95"
+          x-transition:enter-end="translate-y-0 lg:scale-100"
+        >
+          <div
+            class="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between z-10"
+          >
+            <h3
+              class="font-bold text-gray-900"
+              x-text="formService.id ? 'Editar serviço' : 'Novo serviço'"
+            ></h3>
+            <button
+              @click="openFormService = false"
+              class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="p-5 space-y-4">
+            <div>
+              <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
+                Nome do serviço
+              </label>
+              <input
+                type="text"
+                x-model="formService.nome"
+                class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                :class="errors.nome ? 'border-red-400' : 'border-gray-200'"
+                placeholder="Ex: Corte Feminino"
+              />
+              <p
+                class="text-xs text-red-500 mt-1"
+                x-text="errors.nome"
+                x-show="errors.nome"
+              ></p>
             </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
+                  Valor (R$)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  x-model="formService.valor"
+                  class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                  :class="errors.valor ? 'border-red-400' : 'border-gray-200'"
+                  placeholder="0,00"
+                />
+                <p
+                  class="text-xs text-red-500 mt-1"
+                  x-text="errors.valor"
+                  x-show="errors.valor"
+                ></p>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
+                  Duração (min)
+                </label>
+                <input
+                  type="number"
+                  step="5"
+                  x-model="formService.duracao"
+                  class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                  :class="errors.duracao ? 'border-red-400' : 'border-gray-200'"
+                  placeholder="60"
+                />
+                <p
+                  class="text-xs text-red-500 mt-1"
+                  x-text="errors.duracao"
+                  x-show="errors.duracao"
+                ></p>
+              </div>
+            </div>
+            <div class="flex gap-3 pt-2">
+              <button
+                @click="openFormService = false"
+                class="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-colors text-sm"
+              >
+                Cancelar
+              </button>
+              <button
+                @click="postService()"
+                class="flex-1 bg-pink-500 text-white font-bold py-3 rounded-xl hover:bg-pink-600 transition-colors text-sm"
+                x-text="formService.id ? 'Atualizar' : 'Salvar'"
+              ></button>
+            </div>
+          </div>
         </div>
+      </div>
     </main>
-    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col items-end"></div>
+    <div
+      id="toast-container"
+      class="fixed top-4 right-4 z-50 flex flex-col items-end"
+    ></div>
     <script src="js/utils.js"></script>
     <script src="js/servicos.js"></script>
-</body>
+  </body>
 </html>

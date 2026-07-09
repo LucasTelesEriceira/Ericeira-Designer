@@ -1,161 +1,193 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png" />
-    <link rel="manifest" href="assets/site.webmanifest" />
-    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet" />
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png"/>
+    <link rel="manifest" href="assets/site.webmanifest"/>
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"/>
     <title>Despesas — Ericeira Designer</title>
-    <link href="tailwind_theme/tailwind.css" rel="stylesheet" type="text/css" />
+    <link href="tailwind_theme/tailwind.css" rel="stylesheet" type="text/css"/>
     <script defer src="js/Alpine.js"></script>
-    <style>
-        [x-cloak] { display: none !important; }
-        body { font-family: "Roboto", sans-serif; }
-        .appt-card { transition: box-shadow 0.15s ease, border-color 0.15s ease; }
-        .appt-card:hover { box-shadow: 0 0 0 2px #f9a8d4; border-color: #f9a8d4; }
-    </style>
-</head>
-<body class="bg-gray-50" x-data="despesasApp">
+    <style>[x-cloak] { display: none !important; } body { font-family: 'Roboto', sans-serif; } .appt-card { transition: box-shadow 0.15s ease,
+          border-color 0.15s ease; } .appt-card:hover { box-shadow: 0 0 0 2px #f9a8d4; border-color: #f9a8d4; }</style>
+  </head>
+  <body class="bg-gray-50" x-data="despesasApp">
     <header class="fixed inset-x-0 z-50 bg-white border-b border-gray-200 h-14 flex items-center px-4 gap-3">
-        <a href="dashboard.html"
-            class="p-2 -ml-1 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-1.5"
-            aria-label="Voltar ao painel">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
-            <span class="text-sm font-medium hidden sm:inline">Painel</span>
-        </a>
-        <div class="flex items-center gap-2 min-w-0 flex-1">
-            <span class="font-semibold text-gray-900 text-sm">Despesas</span>
-        </div>
-        <div class="flex items-center gap-1.5 ml-auto">
-            <div class="relative" x-data="{ avatarOpen: false }">
-                <button @click="avatarOpen = !avatarOpen"
-                    class="h-8 w-8 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center hover:bg-pink-200 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-300">E</button>
-                <div x-show="avatarOpen" x-cloak @click.outside="avatarOpen = false" x-transition
-                    class="absolute right-0 top-10 bg-white rounded-xl shadow-xl border border-gray-200 py-1 w-48 z-50">
-                    <div class="px-4 py-2.5 border-b border-gray-100">
-                        <p class="text-xs font-semibold text-gray-900">Ericeira Designer</p>
-                        <p class="text-xs text-gray-400 mt-0.5">Profissional</p>
-                    </div>
-                    <button @click="logout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                        Sair
-                    </button>
-                </div>
+      <a href="dashboard.html" class="p-2 -ml-1 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-1.5" aria-label="Voltar ao painel">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        <span class="text-sm font-medium hidden sm:inline">Painel</span>
+      </a>
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <span class="font-semibold text-gray-900 text-sm">Despesas</span>
+      </div>
+      <div class="flex items-center gap-1.5 ml-auto">
+        <div class="relative" x-data="{ avatarOpen: false }">
+          <button @click="avatarOpen = !avatarOpen" class="h-8 w-8 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center hover:bg-pink-200 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-300">
+            E
+          </button>
+          <div x-show="avatarOpen" x-cloak @click.outside="avatarOpen = false" x-transition class="absolute right-0 top-10 bg-white rounded-xl shadow-xl border border-gray-200 py-1 w-48 z-50">
+            <div class="px-4 py-2.5 border-b border-gray-100">
+              <p class="text-xs font-semibold text-gray-900">
+                Ericeira Designer
+              </p>
+              <p class="text-xs text-gray-400 mt-0.5">Profissional</p>
             </div>
+            <button @click="logout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+              Sair
+            </button>
+          </div>
         </div>
+      </div>
     </header>
     <main class="min-h-screen pt-14">
-        <div class="p-4 lg:p-6 max-w-3xl mx-auto">
-            <div class="flex justify-between mb-5">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-900">Despesas</h2>
-                    <p class="text-sm text-gray-400 mt-0.5">Controle de gastos e despesas</p>
+      <div class="p-4 lg:p-6 max-w-3xl mx-auto">
+        <div class="flex justify-between mb-5">
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">Despesas</h2>
+            <p class="text-sm text-gray-400 mt-0.5">
+              Controle de gastos e despesas
+            </p>
+          </div>
+          <button @click="openExpenseForm()" class="mb-5 flex items-center gap-2 bg-pink-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-pink-600 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            </svg>
+            Nova despesa
+          </button>
+        </div>
+
+        <div x-show="loading" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500 mx-auto"></div>
+          <p class="text-sm font-medium text-gray-500 mt-4">
+            Carregando despesas...
+          </p>
+        </div>
+        <div x-show="!loading && expenses.length === 0" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
+          <p class="text-3xl mb-2">📉</p>
+          <p class="text-sm font-medium text-gray-500">
+            Nenhuma despesa registrada
+          </p>
+        </div>
+
+        <div class="space-y-3">
+          <template x-for="(expense, index) in expenses" :key="expense.id || index">
+            <div class="appt-card group bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div @click="openExpenseForm(expense)" class="w-full p-4 text-left cursor-pointer">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="font-bold text-gray-900 text-sm" x-text="expense.title"></span>
+                  <span class="font-bold text-red-500 text-sm" x-text="'R$ ' + expense.amount"></span>
                 </div>
-                <button @click="openExpenseForm()"
-                    class="mb-5 flex items-center gap-2 bg-pink-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-pink-600 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
-                    Nova despesa
+                <div class="flex items-center gap-2 text-xs text-gray-400">
+                  <span x-text="formatDate(expense.expense_date)"></span>
+                  <span x-show="expense.category" class="bg-gray-100 px-2 py-0.5 rounded-full" x-text="expense.category"></span>
+                </div>
+              </div>
+              <div class="border-t border-gray-100 px-4 py-2 flex justify-end">
+                <button @click.stop="deleteExpense(expense.id)" class="text-xs text-red-400 hover:text-red-600 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                  Excluir
                 </button>
+              </div>
             </div>
-
-            <div x-show="loading" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
-              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500 mx-auto"></div>
-              <p class="text-sm font-medium text-gray-500 mt-4">Carregando despesas...</p>
-            </div>
-            <div x-show="!loading && expenses.length === 0" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
-                <p class="text-3xl mb-2">📉</p>
-                <p class="text-sm font-medium text-gray-500">Nenhuma despesa registrada</p>
-            </div>
-
-            <div class="space-y-3">
-                <template x-for="(expense, index) in expenses" :key="expense.id || index">
-                    <div class="appt-card group bg-white rounded-xl border border-gray-200 overflow-hidden">
-                        <div @click="openExpenseForm(expense)" class="w-full p-4 text-left cursor-pointer">
-                            <div class="flex items-center justify-between mb-1.5">
-                                <span class="font-bold text-gray-900 text-sm" x-text="expense.title"></span>
-                                <span class="font-bold text-red-500 text-sm" x-text="'R$ ' + expense.amount"></span>
-                            </div>
-                            <div class="flex items-center gap-2 text-xs text-gray-400">
-                                <span x-text="formatDate(expense.expense_date)"></span>
-                                <span x-show="expense.category" class="bg-gray-100 px-2 py-0.5 rounded-full" x-text="expense.category"></span>
-                            </div>
-                        </div>
-                        <div class="border-t border-gray-100 px-4 py-2 flex justify-end">
-                            <button @click.stop="deleteExpense(expense.id)" class="text-xs text-red-400 hover:text-red-600 flex items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                Excluir
-                            </button>
-                        </div>
-                    </div>
-                </template>
-            </div>
+          </template>
         </div>
+      </div>
 
-        <!-- Modal Expense Form -->
-        <div x-show="openFormExpense" x-cloak class="fixed inset-0 bg-black/40 z-50 flex items-end lg:items-center justify-center" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-            <div @click.outside="openFormExpense = false" class="bg-white w-full lg:max-w-lg lg:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-y-full lg:translate-y-0 lg:scale-95" x-transition:enter-end="translate-y-0 lg:scale-100">
-                <div class="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between z-10">
-                    <h3 class="font-bold text-gray-900" x-text="formExpense.id ? 'Editar despesa' : 'Nova despesa'"></h3>
-                    <button @click="openFormExpense = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
-                </div>
-                <div class="p-5 space-y-4">
-                    <div>
-                        <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Título</label>
-                        <input type="text" x-model="formExpense.title" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="Ex: Aluguel do salão">
-                    </div>
-                    <div>
-                        <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Descrição</label>
-                        <input type="text" x-model="formExpense.description" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="Opcional">
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Valor (R$)</label>
-                            <input type="number" step="0.01" x-model="formExpense.amount" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="0,00">
-                        </div>
-                        <div>
-                            <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Data</label>
-                            <input type="date" x-model="formExpense.expense_date" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Categoria</label>
-                            <select x-model="formExpense.category" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white">
-                                <option value="">Selecione...</option>
-                                <template x-for="cat in expenseCategories" :key="cat.value">
-                                    <option :value="cat.value" x-text="cat.label"></option>
-                                </template>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Pagamento</label>
-                            <select x-model="formExpense.payment_method" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white">
-                                <option value="pix">PIX</option>
-                                <option value="credit_card">Cartão de Crédito</option>
-                                <option value="debit_card">Cartão de Débito</option>
-                                <option value="bank_transfer">Transferência</option>
-                                <option value="cash">Dinheiro</option>
-                                <option value="other">Outro</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="text-xs font-semibold text-gray-700 mb-1.5 block">Observações</label>
-                        <textarea x-model="formExpense.notes" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" rows="2" placeholder="Opcional..."></textarea>
-                    </div>
-                    <div class="flex gap-3 pt-2">
-                        <button @click="openFormExpense = false" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-colors text-sm">Cancelar</button>
-                        <button @click="postExpense()" class="flex-1 bg-pink-500 text-white font-bold py-3 rounded-xl hover:bg-pink-600 transition-colors text-sm" x-text="formExpense.id ? 'Atualizar' : 'Salvar'"></button>
-                    </div>
-                </div>
+      <!-- Modal Expense Form -->
+      <div x-show="openFormExpense" x-cloak class="fixed inset-0 bg-black/40 z-50 flex items-end lg:items-center justify-center" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+        <div @click.outside="openFormExpense = false" class="bg-white w-full lg:max-w-lg lg:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-y-full lg:translate-y-0 lg:scale-95" x-transition:enter-end="translate-y-0 lg:scale-100">
+          <div class="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between z-10">
+            <h3 class="font-bold text-gray-900" x-text="formExpense.id ? 'Editar despesa' : 'Nova despesa'"></h3>
+            <button @click="openFormExpense = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <div class="p-5 space-y-4">
+            <div>
+              <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
+                Título
+              </label>
+              <input type="text" x-model="formExpense.title" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" :class="errors.title ? 'border-red-400' : 'border-gray-200'" placeholder="Ex: Aluguel do salão"/>
+              <p x-show="errors.title" x-text="errors.title" class="text-xs text-red-500 mt-1"></p>
             </div>
+            <div>
+              <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
+                Descrição
+              </label>
+              <input type="text" x-model="formExpense.description" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="Opcional"/>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
+                  Valor (R$)
+                </label>
+                <input type="number" step="0.01" x-model="formExpense.amount" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" :class="errors.amount ? 'border-red-400' : 'border-gray-200'" placeholder="0,00"/>
+                <p x-show="errors.amount" x-text="errors.amount" class="text-xs text-red-500 mt-1"></p>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
+                  Data
+                </label>
+                <input type="date" x-model="formExpense.expense_date" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" :class="errors.data ? 'border-red-400' : 'border-gray-200'"/>
+                <p x-show="errors.data" x-text="errors.data" class="text-xs text-red-500 mt-1"></p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
+                  Categoria
+                </label>
+                <select x-model="formExpense.category" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" :class="errors.nome ? 'border-red-400' : 'border-gray-200'">
+                  <option value="">Selecione...</option>
+                  <template x-for="cat in expenseCategories" :key="cat.value">
+                    <option :value="cat.value" x-text="cat.label"></option>
+                  </template>
+                </select><p x-show="errors.category" x-text="errors.category" class="text-xs text-red-500 mt-1"></p>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
+                  Pagamento
+                </label>
+                <select x-model="formExpense.payment_method" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white">
+                  <option value="pix">PIX</option>
+                  <option value="credit_card">Cartão de Crédito</option>
+                  <option value="debit_card">Cartão de Débito</option>
+                  <option value="bank_transfer">Transferência</option>
+                  <option value="cash">Dinheiro</option>
+                  <option value="other">Outro</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
+                Observações
+              </label>
+              <textarea x-model="formExpense.notes" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" rows="2" placeholder="Opcional..."></textarea>
+            </div>
+            <div class="flex gap-3 pt-2">
+              <button @click="openFormExpense = false" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-colors text-sm">
+                Cancelar
+              </button>
+              <button @click="postExpense()" class="flex-1 bg-pink-500 text-white font-bold py-3 rounded-xl hover:bg-pink-600 transition-colors text-sm" x-text="formExpense.id ? 'Atualizar' : 'Salvar'"></button>
+            </div>
+          </div>
         </div>
+      </div>
     </main>
     <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col items-end"></div>
     <script src="js/utils.js"></script>
     <script src="js/despesas.js"></script>
-</body>
+  </body>
 </html>

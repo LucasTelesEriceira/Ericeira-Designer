@@ -4,6 +4,7 @@ function clientesApp() {
     loading: true,
     selectedClient: null,
     clientSearch: '',
+    error: {},
 
     editingClient: null,
     openClientForm: false,
@@ -43,13 +44,14 @@ function clientesApp() {
     filteredClients() {
       if (!this.clientSearch) return this.clientList
       const q = this.clientSearch.toLowerCase()
-      return this.clientList.filter((c) =>
-        c.name.toLowerCase().includes(q) || c.whatsapp.includes(q)
+      return this.clientList.filter(
+        (c) => c.name.toLowerCase().includes(q) || c.whatsapp.includes(q)
       )
     },
 
     selectClient(client) {
-      this.selectedClient = this.selectedClient?.id === client.id ? null : client
+      this.selectedClient =
+        this.selectedClient?.id === client.id ? null : client
     },
 
     openNewClientForm() {
@@ -68,7 +70,17 @@ function clientesApp() {
       this.openClientForm = true
     },
 
+    validateClientForm() {
+      this.errors = {}
+      if (!this.clientFormName || !this.clientFormName.trim())
+        this.errors.name = 'Informe o nome do cliente'
+      if (!this.clientFormWhatsapp)
+        this.errors.whatsapp = 'Informe o WhatsApp do cliente'
+      return Object.keys(this.errors).length === 0
+    },
+
     async saveClient() {
+      if (!this.validateClientForm()) return
       const body = {
         name: this.clientFormName,
         whatsapp: this.clientFormWhatsapp,
@@ -100,8 +112,8 @@ function clientesApp() {
 
         this.openClientForm = false
         this.loading = true
-      await this.fetchClients()
-      this.loading = false
+        await this.fetchClients()
+        this.loading = false
       } catch (error) {
         console.error('Erro ao salvar cliente:', error)
         showToast('Erro ao salvar cliente')
@@ -116,7 +128,9 @@ function clientesApp() {
 
       try {
         const response = await fetch(
-          getUrlBase()[getEnv()] + '/json/api/v1/scheduling/?clienteId=' + client.id,
+          getUrlBase()[getEnv()] +
+            '/json/api/v1/scheduling/?clienteId=' +
+            client.id,
           { headers: getAuthHeaders() }
         )
         if (handleAuthError(response)) return

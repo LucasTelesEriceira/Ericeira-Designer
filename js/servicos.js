@@ -1,5 +1,6 @@
 function servicosApp() {
   return {
+    errors: {},
     services: [],
     loading: true,
     openFormService: false,
@@ -33,10 +34,13 @@ function servicosApp() {
         this.services = await response.json()
         this.services.sort((a, b) => a.nome.localeCompare(b.nome))
 
-        localStorage.setItem(cacheKey, JSON.stringify({
-          services: this.services,
-          timestamp: Date.now(),
-        }))
+        localStorage.setItem(
+          cacheKey,
+          JSON.stringify({
+            services: this.services,
+            timestamp: Date.now(),
+          })
+        )
       } catch (error) {
         console.error('Erro ao buscar serviços:', error)
       }
@@ -46,7 +50,17 @@ function servicosApp() {
       localStorage.removeItem('cached_services')
     },
 
+    validateServiceForm() {
+      this.errors = {}
+      const f = this.formService
+      if (!f.nome.trim()) this.errors.nome = 'Nome é obrigatório'
+      if (!f.valor) this.errors.valor = 'Valor é obrigatório'
+      if (!f.duracao) this.errors.duracao = 'Duração é obrigatória'
+      return Object.keys(this.errors).length === 0
+    },
+
     async postService() {
+      if (!this.validateServiceForm()) return
       try {
         const response = await fetch(
           getUrlBase()[getEnv()] + '/json/api/v1/services',
