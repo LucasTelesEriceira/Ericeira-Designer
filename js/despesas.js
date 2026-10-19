@@ -6,23 +6,25 @@ function despesasApp() {
     formExpense: {
       id: '',
       title: '',
-      description: '',
       amount: '',
-      expense_date: '',
-      category: '',
-      payment_method: '',
-      notes: '',
+      date: '',
+      category: 'Geral',
     },
     errors: {},
+    expenseSearch: '',
     expenseCategories: [
-      { value: 'materials', label: 'Materiais' },
-      { value: 'tools', label: 'Ferramentas' },
-      { value: 'rent', label: 'Aluguel' },
-      { value: 'energy', label: 'Energia' },
-      { value: 'water', label: 'Água' },
-      { value: 'internet', label: 'Internet' },
-      { value: 'other', label: 'Outros' },
+      { value: 'Geral', label: 'Geral' },
+      { value: 'Materiais', label: 'Materiais' },
+      { value: 'Ferramentas', label: 'Ferramentas' },
+      { value: 'Aluguel', label: 'Aluguel' },
+      { value: 'Energia', label: 'Energia' },
+      { value: 'Água', label: 'Água' },
+      { value: 'Internet', label: 'Internet' },
+      { value: 'Outros', label: 'Outros' },
     ],
+
+    pageSize: 15,
+    displayedCount: 15,
 
     async init() {
       if (!localStorage.getItem('jwtToken')) {
@@ -32,6 +34,10 @@ function despesasApp() {
       this.loading = true
       await this.fetchExpenses()
       this.loading = false
+
+      this.$watch('expenseSearch', () => {
+        this.displayedCount = this.pageSize
+      })
     },
 
     async fetchExpenses() {
@@ -41,10 +47,54 @@ function despesasApp() {
           { headers: getAuthHeaders() }
         )
         if (handleAuthError(response)) return
-        this.expenses = await response.json()
+        const res = await response.json()
+        const raw = Array.isArray(res) ? res : (res.expenses || [])
+        
+        this.expenses = raw.map(e => ({
+          id: e.id,
+          title: e.title || e.name || 'Despesa',
+          amount: parseFloat(e.amount || e.value || 0),
+          category: e.category || 'Geral',
+          date: e.date || e.expense_date || ''
+        }))
+        this.expenses.sort((a, b) => b.date.localeCompare(a.date))
       } catch (error) {
         console.error('Erro ao buscar despesas:', error)
       }
+    },
+
+    filteredExpenses() {
+      if (!this.expenseSearch) return this.expenses
+      const q = this.expenseSearch.toLowerCase().trim()
+      return this.expenses.filter(
+        (e) => (e.title && e.title.toLowerCase().includes(q)) || (e.category && e.category.toLowerCase().includes(q))
+      )
+    },
+
+    paginatedExpenses() {
+      return this.filteredExpenses().slice(0, this.displayedCount)
+    },
+
+    hasMoreExpenses() {
+      return this.displayedCount < this.filteredExpenses().length
+    },
+
+    loadMoreExpenses() {
+      if (this.hasMoreExpenses()) {
+        this.displayedCount += this.pageSize
+      }
+    },
+
+    formatDate(date) {
+      if (!date) return ''
+      return typeof formatDate === 'function' ? formatDate(date) : date
+    },
+
+    formatCurrency(val) {
+      if (typeof formatCurrency === 'function') {
+        return formatCurrency(val)
+      }
+      return 'R$ ' + parseFloat(val || 0).toFixed(2)
     },
 
     openExpenseForm(expense = null) {
@@ -52,44 +102,36 @@ function despesasApp() {
         this.formExpense = {
           id: expense.id,
           title: expense.title || '',
-          description: expense.description || '',
           amount: expense.amount || '',
-          expense_date:
-            expense.expense_date || new Date().toISOString().split('T')[0],
-          category: expense.category || '',
-          payment_method: expense.payment_method || 'pix',
-          notes: expense.notes || '',
+          date: expense.date || new Date().toISOString().split('T')[0],
+          category: expense.category || 'Geral',
         }
       } else {
         this.formExpense = {
           id: '',
           title: '',
-          description: '',
           amount: '',
-          expense_date: new Date().toISOString().split('T')[0],
-          category: '',
-          payment_method: 'pix',
-          notes: '',
+          date: new Date().toISOString().split('T')[0],
+          category: 'Geral',
         }
       }
+      this.errors = {}
       this.openFormExpense = true
     },
 
     validateExpenseForm() {
       this.errors = {}
-      if (!this.formExpense.title) this.errors.title = 'Título é obrigatório'
-      if (!this.formExpense.amount || parseFloat(f.valueReceived) <= 0)
-        this.errors.amount = 'Valor é obrigatório'
-      if (!this.formExpense.expense_date)
-        this.errors.data = 'Data é obrigatória'
-      if (!this.formExpense.category)
-        this.errors.category = 'Categoria é obrigatória'
+      const f = this.formExpense
+      if (!f.title || !f.title.trim()) this.errors.title = 'Título é obrigatório'
+      if (!f.amount || parseFloat(f.amount) <= 0) this.errors.amount = 'Informe um valor válido'
+      if (!f.date) this.errors.date = 'Data é obrigatória'
       return Object.keys(this.errors).length === 0
     },
 
     async postExpense() {
       if (!this.validateExpenseForm()) return
       try {
+        const f = this.formExpense
         const response = await fetch(
           getUrlBase()[getEnv()] + '/json/api/v1/expenses',
           {
@@ -98,7 +140,13 @@ function despesasApp() {
               'Content-Type': 'application/json',
               ...getAuthHeaders(),
             },
-            body: JSON.stringify(this.formExpense),
+            body: JSON.stringify({
+              id: f.id || 0,
+              title: f.title.trim(),
+              amount: parseFloat(f.amount),
+              category: f.category || 'Geral',
+              date: f.date,
+            }),
           }
         )
 
@@ -110,31 +158,14 @@ function despesasApp() {
           return
         }
 
-        const newExpense = await response.json()
-        if (this.formExpense.id) {
-          const index = this.expenses.findIndex(
-            (e) => e.id === this.formExpense.id
-          )
-          if (index !== -1) this.expenses[index] = newExpense.meta_input
-        } else {
-          this.expenses.push(newExpense.meta_input)
-        }
-        this.expenses.sort((a, b) =>
-          b.expense_date.localeCompare(a.expense_date)
-        )
+        showToast(f.id ? 'Despesa atualizada com sucesso' : 'Despesa registrada com sucesso', 'success')
         this.openFormExpense = false
-        this.formExpense = {
-          id: '',
-          title: '',
-          description: '',
-          amount: '',
-          expense_date: '',
-          category: '',
-          payment_method: '',
-          notes: '',
-        }
+        this.loading = true
+        await this.fetchExpenses()
+        this.loading = false
       } catch (error) {
         console.error('Erro ao salvar despesa:', error)
+        showToast('Erro ao salvar despesa')
       }
     },
 
@@ -143,10 +174,14 @@ function despesasApp() {
 
       try {
         const response = await fetch(
-          getUrlBase()[getEnv()] + '/json/api/v1/expenses/' + id,
+          getUrlBase()[getEnv()] + '/json/api/v1/expenses',
           {
             method: 'DELETE',
-            headers: { ...getAuthHeaders() },
+            headers: {
+              'Content-Type': 'application/json',
+              ...getAuthHeaders(),
+            },
+            body: JSON.stringify({ id }),
           }
         )
 
@@ -158,9 +193,15 @@ function despesasApp() {
           return
         }
 
+        showToast('Despesa excluída com sucesso', 'success')
         this.expenses = this.expenses.filter((e) => e.id !== id)
+        if (typeof invalidateCache === 'function') {
+          invalidateCache('expenses')
+          invalidateCache('dashboard')
+        }
       } catch (error) {
         console.error('Erro ao excluir despesa:', error)
+        showToast('Erro ao excluir despesa')
       }
     },
   }

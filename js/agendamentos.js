@@ -14,7 +14,8 @@ function agendamentosApp() {
       name: '',
       whatsapp: '',
       service: '',
-      professional: 'Vanusa Ericeira',
+      professional_id: '',
+      professional: '',
       date: '',
       time: '',
       duration: '',
@@ -23,12 +24,18 @@ function agendamentosApp() {
     schedulingClientSearch: '',
 
     services: [],
+    professionals: [],
     clientList: [],
 
-    // Futuro: bloqueios manuais
     blockedDates: [],
     blockedDayOfWeek: [],
     blockedTimeRanges: [],
+
+    notificationPermission: typeof getNotificationPermission === 'function' ? getNotificationPermission() : 'default',
+    canInstallPwa: false,
+    showNotificationBanner: false,
+    knownAppointmentIds: new Set(),
+    isSyncing: false,
 
     async init() {
       if (!localStorage.getItem('jwtToken')) {
@@ -40,14 +47,43 @@ function agendamentosApp() {
         this.fetchSchedulingToday(),
         this.fetchSchedulingTomorrow(),
         this.fetchSchedulingOther_days(),
+        this.fetchServices(),
+        this.fetchProfessionals(),
+        this.computeClientList()
       ])
-      this.computeClientList()
-      await this.fetchServices()
       this.loading = false
+
+      // Inicializa IDs conhecidos para não disparar alerta de agendamentos já existentes
+      this.knownAppointmentIds = new Set([
+        ...this.schedulingToday.map((a) => a.id),
+        ...this.schedulingTomorrow.map((a) => a.id),
+        ...this.schedulingOther_days.map((a) => a.id),
+      ])
+
+      // Verifica status das notificações
+      this.notificationPermission = typeof getNotificationPermission === 'function' ? getNotificationPermission() : 'default'
+      this.showNotificationBanner = this.notificationPermission === 'default' && !sessionStorage.getItem('dismissedNotificationBanner')
+
+      // Listener para instalação PWA
+      window.addEventListener('pwa-installable', () => {
+        this.canInstallPwa = true
+      })
+      if (window.deferredInstallPrompt) {
+        this.canInstallPwa = true
+      }
+
+      // Inicia monitor em segundo plano (polling 25s + sync ao desbloquear celular ou voltar à aba)
+      if (typeof startAppointmentMonitor === 'function') {
+        startAppointmentMonitor({
+          onSync: () => this.syncAppointments(true),
+          intervalMs: 25000,
+        })
+      }
+
       this.$watch('formScheduling.service', (serviceName) => {
-        const s = this.services.find((s) => s.nome === serviceName)
+        const s = this.services.find((s) => (s.name || s.nome) === serviceName)
         if (s) {
-          this.formScheduling.duration = s.duracao
+          this.formScheduling.duration = s.duration || s.duracao || 60
           this.computeAvailableTimeOptions()
         }
       })
@@ -57,6 +93,13 @@ function agendamentosApp() {
       this.$watch('formScheduling.duration', () =>
         this.computeAvailableTimeOptions()
       )
+      this.$watch('formScheduling.professional_id', (profId) => {
+        const p = this.professionals.find((p) => p.id === parseInt(profId))
+        if (p) {
+          this.formScheduling.professional = p.name
+          this.computeAvailableTimeOptions()
+        }
+      })
       this.checkQueryParams()
     },
 
@@ -74,29 +117,38 @@ function agendamentosApp() {
     },
 
     async fetchServices() {
-      const cacheKey = 'cached_services'
-      const cacheTime = 5 * 60 * 1000
-      const cached = localStorage.getItem(cacheKey)
-      const cachedData = cached ? JSON.parse(cached) : null
-      if (cachedData && Date.now() - cachedData.timestamp < cacheTime) {
-        this.services = cachedData.services
-        return
-      }
       try {
         const response = await fetch(
           getUrlBase()[getEnv()] + '/json/api/v1/services'
         )
-        this.services = await response.json()
-        this.services.sort((a, b) => a.nome.localeCompare(b.nome))
-        localStorage.setItem(
-          cacheKey,
-          JSON.stringify({
-            services: this.services,
-            timestamp: Date.now(),
-          })
-        )
+        const result = await response.json()
+        const rawList = Array.isArray(result) ? result : (result.services || [])
+
+        this.services = rawList.map(s => ({
+          id: s.id,
+          name: s.name || s.nome || '',
+          price: s.price !== undefined ? s.price : (s.valor || 0),
+          duration: s.duration !== undefined ? s.duration : (s.duracao || 60),
+          description: s.description || s.descricao || '',
+          active: s.active !== undefined ? s.active : 1
+        }))
+        this.services.sort((a, b) => a.name.localeCompare(b.name))
       } catch (error) {
         console.error('Erro ao buscar serviços:', error)
+      }
+    },
+
+    async fetchProfessionals() {
+      try {
+        const response = await fetch(
+          getUrlBase()[getEnv()] + '/json/api/v1/professionals',
+          { headers: getAuthHeaders() }
+        )
+        const res = await response.json()
+        const list = Array.isArray(res) ? res : (res.professionals || [])
+        this.professionals = list.filter(p => p.active)
+      } catch (error) {
+        console.error('Erro ao buscar profissionais:', error)
       }
     },
 
@@ -108,7 +160,7 @@ function agendamentosApp() {
         )
         if (handleAuthError(response)) return
         const result = await response.json()
-        this.clientList = result.clients || []
+        this.clientList = Array.isArray(result) ? result : (result.clients || [])
       } catch (error) {
         console.error('Erro ao buscar clientes:', error)
       }
@@ -117,13 +169,30 @@ function agendamentosApp() {
     filteredClientList() {
       if (!this.schedulingClientSearch) return []
       const q = this.schedulingClientSearch.toLowerCase()
-      return this.clientList.filter((c) => c.name.toLowerCase().includes(q))
+      return this.clientList.filter((c) => (c.name && c.name.toLowerCase().includes(q)))
     },
 
     selectSchedulingClient(client) {
       this.formScheduling.name = client.name
       this.formScheduling.whatsapp = client.whatsapp
       this.schedulingClientSearch = client.name
+    },
+
+    normalizeSchedulingList(list) {
+      if (!Array.isArray(list)) return []
+      return list.map(item => ({
+        id: item.id,
+        name: item.client_name || item.name || 'Cliente',
+        whatsapp: item.client_whatsapp || item.whatsapp || '',
+        service: item.service_name || item.service || '',
+        professional: item.professional_name || item.professional || 'Profissional',
+        professional_id: item.professional_id || null,
+        date: item.date || '',
+        time: item.time || '',
+        duration: item.duration || 60,
+        status: item.status || 'active',
+        delete_token: item.delete_token || ''
+      }))
     },
 
     async fetchSchedulingToday() {
@@ -133,7 +202,8 @@ function agendamentosApp() {
           { headers: getAuthHeaders() }
         )
         if (handleAuthError(response)) return
-        this.schedulingToday = await response.json()
+        const res = await response.json()
+        this.schedulingToday = this.normalizeSchedulingList(res)
       } catch (error) {
         console.error('Erro ao buscar agendamentos de hoje:', error)
       }
@@ -146,7 +216,8 @@ function agendamentosApp() {
           { headers: getAuthHeaders() }
         )
         if (handleAuthError(response)) return
-        this.schedulingTomorrow = await response.json()
+        const res = await response.json()
+        this.schedulingTomorrow = this.normalizeSchedulingList(res)
       } catch (error) {
         console.error('Erro ao buscar agendamentos de amanhã:', error)
       }
@@ -159,7 +230,8 @@ function agendamentosApp() {
           { headers: getAuthHeaders() }
         )
         if (handleAuthError(response)) return
-        this.schedulingOther_days = await response.json()
+        const res = await response.json()
+        this.schedulingOther_days = this.normalizeSchedulingList(res)
       } catch (error) {
         console.error('Erro ao buscar agendamentos futuros:', error)
       }
@@ -183,41 +255,42 @@ function agendamentosApp() {
         if (handleAuthError(response)) return
 
         if (response.ok) {
+          showToast('Agendamento excluído com sucesso', 'success')
           this.schedulingToday = this.schedulingToday.filter((a) => a.id !== id)
-          this.schedulingTomorrow = this.schedulingTomorrow.filter(
-            (a) => a.id !== id
-          )
-          this.schedulingOther_days = this.schedulingOther_days.filter(
-            (a) => a.id !== id
-          )
+          this.schedulingTomorrow = this.schedulingTomorrow.filter((a) => a.id !== id)
+          this.schedulingOther_days = this.schedulingOther_days.filter((a) => a.id !== id)
         } else {
           const error = await response.json()
           showToast('Erro: ' + (error.error || 'Falha ao excluir'))
         }
       } catch (error) {
         console.error('Erro ao excluir agendamento:', error)
+        showToast('Erro ao excluir agendamento')
       }
     },
 
     openSchedulingForm(scheduling = null) {
+      const defaultProf = this.professionals[0]
       if (scheduling) {
         this.formScheduling = {
           id: scheduling.id || '',
           name: scheduling.name || '',
           whatsapp: scheduling.whatsapp || '',
           service: scheduling.service || '',
-          professional: scheduling.professional || 'Vanusa Ericeira',
+          professional_id: scheduling.professional_id || (defaultProf ? defaultProf.id : ''),
+          professional: scheduling.professional || (defaultProf ? defaultProf.name : ''),
           date: scheduling.date || '',
           time: scheduling.time || '',
           duration: scheduling.duration || '',
         }
-      } else if (!this.formScheduling.id) {
+      } else {
         this.formScheduling = {
           id: '',
           name: '',
           whatsapp: '',
           service: '',
-          professional: 'Vanusa Ericeira',
+          professional_id: defaultProf ? defaultProf.id : '',
+          professional: defaultProf ? defaultProf.name : '',
           date: '',
           time: '',
           duration: '',
@@ -239,7 +312,10 @@ function agendamentosApp() {
         ...this.schedulingOther_days,
       ].filter(
         (a) =>
-          a.date === date && a.professional === this.formScheduling.professional
+          a.date === date && (
+            parseInt(a.professional_id) === parseInt(this.formScheduling.professional_id) ||
+            a.professional === this.formScheduling.professional
+          )
       )
     },
 
@@ -303,6 +379,7 @@ function agendamentosApp() {
           if (clientStart < lunchEnd && clientEnd > lunchStart) continue
 
           const hasConflict = existing.some((a) => {
+            if (!a.time) return false
             const [ah, am] = a.time.split(':').map(Number)
             const existingStart = this.createDateTime(a.date, ah, am)
             const existingEnd = new Date(
@@ -312,8 +389,6 @@ function agendamentosApp() {
           })
 
           if (!hasConflict) options.push(timeStr)
-
-          // Futuro: verificar blockedTimeRanges
         }
       }
 
@@ -341,7 +416,8 @@ function agendamentosApp() {
               name: f.name.trim(),
               whatsapp: f.whatsapp.trim(),
               service: f.service,
-              professional: f.professional.trim(),
+              professional_id: f.professional_id ? parseInt(f.professional_id) : undefined,
+              professional: f.professional ? f.professional.trim() : undefined,
               date: f.date.trim(),
               time: f.time.trim(),
               duration: f.duration,
@@ -358,6 +434,7 @@ function agendamentosApp() {
           return
         }
 
+        showToast('Agendamento salvo com sucesso', 'success')
         await Promise.all([
           this.fetchSchedulingToday(),
           this.fetchSchedulingTomorrow(),
@@ -370,7 +447,8 @@ function agendamentosApp() {
           name: '',
           whatsapp: '',
           service: '',
-          professional: 'Vanusa Ericeira',
+          professional_id: '',
+          professional: '',
           date: '',
           time: '',
           duration: '',
@@ -391,12 +469,86 @@ function agendamentosApp() {
       const item = all.find((a) => a.date === day && a.time === time)
       if (!item) return
 
-      const number = item.whatsapp.replace(/\D/g, '')
+      const number = (item.whatsapp || '').replace(/\D/g, '')
       const dateStr = formatDate(day)
       window.open(
         `https://api.whatsapp.com/send?phone=+55${number}&text=${encodeURIComponent('Agendamento marcado para o dia ' + dateStr + ' às ' + time + '.')}`,
         '_blank'
       )
+    },
+
+    async syncAppointments(isBackground = true) {
+      if (this.isSyncing) return
+      this.isSyncing = true
+      try {
+        if (typeof invalidateCache === 'function') {
+          invalidateCache('scheduling')
+        }
+
+        const [todayRes, tomorrowRes, otherRes] = await Promise.all([
+          fetch(getUrlBase()[getEnv()] + '/json/api/v1/scheduling/today', { headers: getAuthHeaders() }),
+          fetch(getUrlBase()[getEnv()] + '/json/api/v1/scheduling/tomorrow', { headers: getAuthHeaders() }),
+          fetch(getUrlBase()[getEnv()] + '/json/api/v1/scheduling/other_days', { headers: getAuthHeaders() }),
+        ])
+
+        if (todayRes.ok && tomorrowRes.ok && otherRes.ok) {
+          const freshToday = this.normalizeSchedulingList(await todayRes.json())
+          const freshTomorrow = this.normalizeSchedulingList(await tomorrowRes.json())
+          const freshOther = this.normalizeSchedulingList(await otherRes.json())
+
+          const allFresh = [...freshToday, ...freshTomorrow, ...freshOther]
+          const newAppointments = allFresh.filter((a) => a && a.id && !this.knownAppointmentIds.has(a.id))
+
+          if (newAppointments.length > 0) {
+            newAppointments.forEach((appt) => {
+              this.knownAppointmentIds.add(appt.id)
+              if (typeof notifyNewAppointment === 'function') {
+                notifyNewAppointment(appt)
+              }
+            })
+          }
+
+          // Atualiza reativamente as listas
+          this.schedulingToday = freshToday
+          this.schedulingTomorrow = freshTomorrow
+          this.schedulingOther_days = freshOther
+        }
+      } catch (err) {
+        console.warn('Falha na sincronização periódica de agendamentos:', err)
+      } finally {
+        this.isSyncing = false
+      }
+    },
+
+    async toggleNotificationPermission() {
+      if (this.notificationPermission === 'granted') {
+        if (typeof playAppointmentChime === 'function') {
+          playAppointmentChime()
+        }
+        if (typeof showToast === 'function') {
+          showToast('Notificações ativas! Som de teste reproduzido.', 'success')
+        }
+        return
+      }
+
+      if (typeof requestNotificationPermission === 'function') {
+        const granted = await requestNotificationPermission()
+        this.notificationPermission = typeof getNotificationPermission === 'function' ? getNotificationPermission() : 'default'
+        this.showNotificationBanner = false
+      }
+    },
+
+    dismissNotificationBanner() {
+      this.showNotificationBanner = false
+      try {
+        sessionStorage.setItem('dismissedNotificationBanner', 'true')
+      } catch (e) {}
+    },
+
+    installPwa() {
+      if (typeof promptPwaInstall === 'function') {
+        promptPwaInstall()
+      }
     },
   }
 }

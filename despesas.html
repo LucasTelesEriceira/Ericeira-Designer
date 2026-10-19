@@ -28,14 +28,16 @@
       <div class="flex items-center gap-1.5 ml-auto">
         <div class="relative" x-data="{ avatarOpen: false }">
           <button @click="avatarOpen = !avatarOpen" class="h-8 w-8 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center hover:bg-pink-200 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-300">
-            E
+            <span x-text="getUserDisplayName().charAt(0).toUpperCase()"></span>
           </button>
-          <div x-show="avatarOpen" x-cloak @click.outside="avatarOpen = false" x-transition class="absolute right-0 top-10 bg-white rounded-xl shadow-xl border border-gray-200 py-1 w-48 z-50">
+          <div x-show="avatarOpen" x-cloak @click.outside="avatarOpen = false" x-transition class="absolute right-0 top-10 bg-white rounded-xl shadow-xl border border-gray-200 py-1 w-52 z-50">
             <div class="px-4 py-2.5 border-b border-gray-100">
-              <p class="text-xs font-semibold text-gray-900">
-                Ericeira Designer
-              </p>
-              <p class="text-xs text-gray-400 mt-0.5">Profissional</p>
+              <p class="text-xs font-semibold text-gray-900 truncate" x-text="getUserDisplayName()"></p>
+              <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mt-1" :class="{
+                'bg-purple-100 text-purple-700': getUserRole() === 'admin',
+                'bg-blue-100 text-blue-700': getUserRole() === 'receptionist',
+                'bg-emerald-100 text-emerald-700': getUserRole() === 'professional'
+              }" x-text="getUserRoleLabel()"></span>
             </div>
             <button @click="logout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -64,42 +66,63 @@
           </button>
         </div>
 
+        <div class="mb-5" x-show="expenses.length > 0">
+          <input type="text" x-model="expenseSearch" placeholder="Buscar por título ou categoria..." class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600">
+        </div>
+
         <div x-show="loading" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500 mx-auto"></div>
           <p class="text-sm font-medium text-gray-500 mt-4">
             Carregando despesas...
           </p>
         </div>
-        <div x-show="!loading && expenses.length === 0" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
+        <div x-show="!loading && filteredExpenses().length === 0" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
           <p class="text-3xl mb-2">📉</p>
-          <p class="text-sm font-medium text-gray-500">
-            Nenhuma despesa registrada
-          </p>
+          <p class="text-sm font-medium text-gray-500" x-text="expenseSearch ? 'Nenhuma despesa encontrada para esta busca' : 'Nenhuma despesa registrada'"></p>
         </div>
 
-        <div class="space-y-3">
-          <template x-for="(expense, index) in expenses" :key="expense.id || index">
-            <div class="appt-card group bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <div @click="openExpenseForm(expense)" class="w-full p-4 text-left cursor-pointer">
-                <div class="flex items-center justify-between mb-1.5">
-                  <span class="font-bold text-gray-900 text-sm" x-text="expense.title"></span>
-                  <span class="font-bold text-red-500 text-sm" x-text="'R$ ' + expense.amount"></span>
-                </div>
-                <div class="flex items-center gap-2 text-xs text-gray-400">
-                  <span x-text="formatDate(expense.expense_date)"></span>
-                  <span x-show="expense.category" class="bg-gray-100 px-2 py-0.5 rounded-full" x-text="expense.category"></span>
+        <div class="space-y-3" x-show="!loading">
+          <template x-for="(expense, index) in paginatedExpenses()" :key="expense.id || index">
+            <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between shadow-sm hover:border-pink-200 transition-colors">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 font-bold flex items-center justify-center text-sm flex-shrink-0" x-text="expense.title.charAt(0).toUpperCase()"></div>
+                <div class="min-w-0">
+                  <span class="font-bold text-gray-900 text-sm block truncate" x-text="expense.title"></span>
+                  <div class="flex items-center gap-1.5 text-xs text-gray-400 mt-0.5">
+                    <span class="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium text-[11px]" x-text="expense.category || 'Geral'"></span>
+                    <span x-show="expense.date" class="text-gray-300">•</span>
+                    <span x-show="expense.date" x-text="formatDate(expense.date)"></span>
+                  </div>
                 </div>
               </div>
-              <div class="border-t border-gray-100 px-4 py-2 flex justify-end">
-                <button @click.stop="deleteExpense(expense.id)" class="text-xs text-red-400 hover:text-red-600 flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-3">
+                <span class="font-bold text-red-500 text-sm sm:text-base mr-1" x-text="formatCurrency(expense.amount)"></span>
+                <button @click="openExpenseForm(expense)" class="p-2 text-gray-400 hover:text-pink-600 hover:bg-pink-50 rounded-lg transition-colors" title="Editar">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                  </svg>
+                </button>
+                <button @click="deleteExpense(expense.id)" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Excluir">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                   </svg>
-                  Excluir
                 </button>
               </div>
             </div>
           </template>
+
+          <!-- Sentinela de Rolagem Infinita -->
+          <div x-show="hasMoreExpenses()" 
+               x-init="createInfiniteScrollObserver($el, () => loadMoreExpenses())" 
+               class="py-5 text-center flex items-center justify-center gap-2 text-xs text-gray-400">
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-pink-500"></div>
+            <span>Carregando mais despesas...</span>
+          </div>
+
+          <!-- Rodapé de Contagem -->
+          <div x-show="!loading && filteredExpenses().length > 0" class="text-center py-3 text-xs text-gray-400">
+            <span x-text="'Exibindo ' + Math.min(displayedCount, filteredExpenses().length) + ' de ' + filteredExpenses().length + ' despesas'"></span>
+          </div>
         </div>
       </div>
 
@@ -119,28 +142,28 @@
               <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
                 Título
               </label>
-              <input type="text" x-model="formExpense.title" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" :class="errors.title ? 'border-red-400' : 'border-gray-200'" placeholder="Ex: Aluguel do salão"/>
+              <input type="text" x-model="formExpense.title" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600" :class="errors.title ? 'border-red-400' : 'border-gray-200'" placeholder="Ex: Aluguel do salão"/>
               <p x-show="errors.title" x-text="errors.title" class="text-xs text-red-500 mt-1"></p>
             </div>
             <div>
               <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
                 Descrição
               </label>
-              <input type="text" x-model="formExpense.description" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="Opcional"/>
+              <input type="text" x-model="formExpense.description" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600" placeholder="Opcional"/>
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
                   Valor (R$)
                 </label>
-                <input type="number" step="0.01" x-model="formExpense.amount" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" :class="errors.amount ? 'border-red-400' : 'border-gray-200'" placeholder="0,00"/>
+                <input type="number" step="0.01" x-model="formExpense.amount" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600" :class="errors.amount ? 'border-red-400' : 'border-gray-200'" placeholder="0,00"/>
                 <p x-show="errors.amount" x-text="errors.amount" class="text-xs text-red-500 mt-1"></p>
               </div>
               <div>
                 <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
                   Data
                 </label>
-                <input type="date" x-model="formExpense.expense_date" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" :class="errors.data ? 'border-red-400' : 'border-gray-200'"/>
+                <input type="date" x-model="formExpense.expense_date" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600" :class="errors.data ? 'border-red-400' : 'border-gray-200'"/>
                 <p x-show="errors.data" x-text="errors.data" class="text-xs text-red-500 mt-1"></p>
               </div>
             </div>
@@ -149,7 +172,7 @@
                 <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
                   Categoria
                 </label>
-                <select x-model="formExpense.category" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" :class="errors.nome ? 'border-red-400' : 'border-gray-200'">
+                <select x-model="formExpense.category" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600" :class="errors.nome ? 'border-red-400' : 'border-gray-200'">
                   <option value="">Selecione...</option>
                   <template x-for="cat in expenseCategories" :key="cat.value">
                     <option :value="cat.value" x-text="cat.label"></option>
@@ -160,7 +183,7 @@
                 <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
                   Pagamento
                 </label>
-                <select x-model="formExpense.payment_method" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white">
+                <select x-model="formExpense.payment_method" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 bg-white focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600">
                   <option value="pix">PIX</option>
                   <option value="credit_card">Cartão de Crédito</option>
                   <option value="debit_card">Cartão de Débito</option>
@@ -174,7 +197,7 @@
               <label class="text-xs font-semibold text-gray-700 mb-1.5 block">
                 Observações
               </label>
-              <textarea x-model="formExpense.notes" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-400" rows="2" placeholder="Opcional..."></textarea>
+              <textarea x-model="formExpense.notes" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600" rows="2" placeholder="Opcional..."></textarea>
             </div>
             <div class="flex gap-3 pt-2">
               <button @click="openFormExpense = false" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-colors text-sm">

@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png"/>
+    <link rel="manifest" href="assets/site.webmanifest"/>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet"/>
+    <title>Relatórios Financeiros — Ericeira Designer</title>
+    <link href="tailwind_theme/tailwind.css" rel="stylesheet" type="text/css"/>
+    <script defer src="js/Alpine.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>[x-cloak] { display: none !important; } body { font-family: 'Roboto', sans-serif; }</style>
+  </head>
+  <body class="bg-gray-50" x-data="financeiroApp">
+    <header class="fixed inset-x-0 z-50 bg-white border-b border-gray-200 h-14 flex items-center px-4 gap-3">
+      <a href="dashboard.html" class="p-2 -ml-1 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-1.5" aria-label="Voltar ao painel">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        <span class="text-sm font-medium hidden sm:inline">Painel</span>
+      </a>
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <span class="font-semibold text-gray-900 text-sm">Relatórios Financeiros</span>
+      </div>
+      <div class="flex items-center gap-1.5 ml-auto">
+        <div class="relative" x-data="{ avatarOpen: false }">
+          <button @click="avatarOpen = !avatarOpen" class="h-8 w-8 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center hover:bg-pink-200 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-300">
+            <span x-text="getUserDisplayName().charAt(0).toUpperCase()"></span>
+          </button>
+          <div x-show="avatarOpen" x-cloak @click.outside="avatarOpen = false" x-transition class="absolute right-0 top-10 bg-white rounded-xl shadow-xl border border-gray-200 py-1 w-52 z-50">
+            <div class="px-4 py-2.5 border-b border-gray-100">
+              <p class="text-xs font-semibold text-gray-900 truncate" x-text="getUserDisplayName()"></p>
+              <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 bg-purple-100 text-purple-700" x-text="getUserRoleLabel()"></span>
+            </div>
+            <button @click="logout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+              Sair
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="min-h-screen pt-14 pb-12">
+      <div class="p-4 lg:p-6 max-w-5xl mx-auto space-y-6">
+        <!-- Topo: Título e Seletor de Período -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-xl font-bold text-gray-900">Demonstrativo e Métricas Financeiras</h1>
+            <p class="text-xs text-gray-400 mt-0.5" x-text="'Período ativo: ' + (periodLabel || 'Carregando...')"></p>
+          </div>
+
+          <!-- Filtros Rápidos de Período -->
+          <div class="flex items-center gap-1.5 bg-white border border-gray-200 p-1 rounded-xl shadow-sm self-start sm:self-auto flex-wrap">
+            <button @click="setPeriod('today')" :class="selectedPeriod === 'today' ? 'bg-pink-50 text-pink-600 font-bold' : 'text-gray-500 hover:text-gray-800'" class="px-3 py-1.5 rounded-lg text-xs transition-colors">
+              Hoje
+            </button>
+            <button @click="setPeriod('this_month')" :class="selectedPeriod === 'this_month' ? 'bg-pink-50 text-pink-600 font-bold' : 'text-gray-500 hover:text-gray-800'" class="px-3 py-1.5 rounded-lg text-xs transition-colors">
+              Este Mês
+            </button>
+            <button @click="setPeriod('last_month')" :class="selectedPeriod === 'last_month' ? 'bg-pink-50 text-pink-600 font-bold' : 'text-gray-500 hover:text-gray-800'" class="px-3 py-1.5 rounded-lg text-xs transition-colors">
+              Mês Passado
+            </button>
+            <button @click="setPeriod('this_year')" :class="selectedPeriod === 'this_year' ? 'bg-pink-50 text-pink-600 font-bold' : 'text-gray-500 hover:text-gray-800'" class="px-3 py-1.5 rounded-lg text-xs transition-colors">
+              Ano Atual
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtro por Datas Customizadas -->
+        <div class="bg-white border border-gray-200 rounded-xl p-3 flex flex-wrap items-center gap-3 text-xs shadow-sm">
+          <span class="font-semibold text-gray-700">Filtro Personalizado:</span>
+          <div class="flex items-center gap-2">
+            <label class="text-gray-500">De:</label>
+            <input type="date" x-model="customStartDate" class="border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:border-pink-500"/>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="text-gray-500">Até:</label>
+            <input type="date" x-model="customEndDate" class="border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:border-pink-500"/>
+          </div>
+          <button @click="applyCustomPeriod()" class="bg-gray-900 text-white font-bold px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors">
+            Filtrar
+          </button>
+        </div>
+
+        <!-- Loading State -->
+        <div x-show="loading" class="bg-white border border-dashed border-gray-200 rounded-xl p-12 text-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500 mx-auto"></div>
+          <p class="text-sm font-medium text-gray-500 mt-4">Calculando indicadores financeiros...</p>
+        </div>
+
+        <div x-show="!loading" class="space-y-6">
+          <!-- 1. Grid de Indicadores Principais (KPIs) -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <!-- Entradas / Faturamento Bruto -->
+            <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm relative overflow-hidden">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-medium text-gray-500">Faturamento Bruto</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-100">Entradas</span>
+              </div>
+              <p class="text-xl sm:text-2xl font-bold text-emerald-600 tracking-tight" x-text="formatCurrency(summary.gross_revenue)"></p>
+              <div class="text-[11px] text-gray-400 mt-1 flex flex-col gap-0.5">
+                <span x-text="'Serviços: ' + formatCurrency(summary.services_revenue)"></span>
+                <span x-text="'Vendas Balcão: ' + formatCurrency(summary.sales_revenue)"></span>
+              </div>
+            </div>
+
+            <!-- Saídas / Total de Despesas -->
+            <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm relative overflow-hidden">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-medium text-gray-500">Total de Despesas</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-100">Saídas</span>
+              </div>
+              <p class="text-xl sm:text-2xl font-bold text-rose-600 tracking-tight" x-text="formatCurrency(summary.total_expenses)"></p>
+              <p class="text-[11px] text-gray-400 mt-1" x-text="summary.expenses_count + ' despesa(s) registrada(s)'"></p>
+            </div>
+
+            <!-- Lucro Líquido Real -->
+            <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm relative overflow-hidden">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-medium text-gray-500">Lucro Líquido</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded" :class="summary.net_profit >= 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-700 border border-red-100'" x-text="summary.net_profit >= 0 ? 'Lucro' : 'Prejuízo'"></span>
+              </div>
+              <p class="text-xl sm:text-2xl font-bold tracking-tight" :class="summary.net_profit >= 0 ? 'text-gray-900' : 'text-red-600'" x-text="formatCurrency(summary.net_profit)"></p>
+              <p class="text-[11px] text-gray-400 mt-1" x-text="'Margem: ' + summary.profit_margin + '%'"></p>
+            </div>
+
+            <!-- Ticket Médio -->
+            <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm relative overflow-hidden">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-medium text-gray-500">Ticket Médio</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100">Média</span>
+              </div>
+              <p class="text-xl sm:text-2xl font-bold text-blue-600 tracking-tight" x-text="formatCurrency(summary.ticket_average)"></p>
+              <p class="text-[11px] text-gray-400 mt-1" x-text="summary.total_transactions + ' transação(ões) total'"></p>
+            </div>
+          </div>
+
+          <!-- 2. Gráficos Chart.js: Evolução Mensal e Formas de Pagamento -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Gráfico 1: Evolução Mensal (Últimos 6 meses) -->
+            <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm lg:col-span-2 flex flex-col justify-between">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h2 class="font-bold text-gray-900 text-sm">Evolução Mensal (Entradas vs. Saídas vs. Lucro)</h2>
+                  <p class="text-xs text-gray-400 mt-0.5">Histórico comparativo dos últimos 6 meses</p>
+                </div>
+              </div>
+              <div class="relative h-64 w-full">
+                <canvas id="chartEvolution"></canvas>
+              </div>
+            </div>
+
+            <!-- Gráfico 2: Formas de Pagamento -->
+            <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm flex flex-col justify-between">
+              <div class="mb-3">
+                <h2 class="font-bold text-gray-900 text-sm">Meios de Pagamento</h2>
+                <p class="text-xs text-gray-400 mt-0.5">Participação no faturamento</p>
+              </div>
+              <div class="relative h-48 w-full flex items-center justify-center">
+                <canvas id="chartPayment" x-show="paymentMethods.length > 0"></canvas>
+                <p x-show="paymentMethods.length === 0" class="text-xs text-gray-400 italic text-center">Nenhum pagamento registrado no período.</p>
+              </div>
+              <div class="space-y-1.5 mt-3 border-t border-gray-100 pt-3">
+                <template x-for="p in paymentMethods" :key="p.method">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="text-gray-600" x-text="p.label"></span>
+                    <span class="font-bold text-gray-900" x-text="formatCurrency(p.total) + ' (' + p.percentage + '%)'"></span>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Demonstrativo de Resultado (DRE Simplificado) -->
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+              <h2 class="font-bold text-gray-900 text-sm">Demonstrativo de Resultado (DRE Simplificado)</h2>
+              <span class="text-xs text-gray-400" x-text="periodLabel"></span>
+            </div>
+            <div class="divide-y divide-gray-100 text-sm">
+              <div class="p-3.5 flex items-center justify-between hover:bg-gray-50/50">
+                <span class="text-gray-600 flex items-center gap-2">
+                  <span class="text-emerald-500 font-bold">(+)</span> Receita de Atendimentos & Serviços
+                </span>
+                <span class="font-semibold text-gray-900" x-text="formatCurrency(summary.services_revenue)"></span>
+              </div>
+              <div class="p-3.5 flex items-center justify-between hover:bg-gray-50/50">
+                <span class="text-gray-600 flex items-center gap-2">
+                  <span class="text-emerald-500 font-bold">(+)</span> Vendas Diretas de Produtos (Balcão/PDV)
+                </span>
+                <span class="font-semibold text-gray-900" x-text="formatCurrency(summary.sales_revenue)"></span>
+              </div>
+              <div class="p-3.5 flex items-center justify-between bg-emerald-50/50 font-bold">
+                <span class="text-emerald-900 flex items-center gap-2">
+                  <span>(=)</span> Faturamento Bruto (Entradas Totais)
+                </span>
+                <span class="text-emerald-700 text-base" x-text="formatCurrency(summary.gross_revenue)"></span>
+              </div>
+              <div class="p-3.5 flex items-center justify-between hover:bg-gray-50/50">
+                <span class="text-gray-600 flex items-center gap-2">
+                  <span class="text-rose-500 font-bold">(-)</span> Despesas Operacionais e Custos
+                </span>
+                <span class="font-semibold text-rose-600" x-text="'- ' + formatCurrency(summary.total_expenses)"></span>
+              </div>
+              <div class="p-4 flex items-center justify-between bg-gray-50 font-bold border-t-2 border-gray-200">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">(=)</span>
+                  <div>
+                    <span class="text-gray-900 text-sm block">Resultado Líquido do Período</span>
+                    <span class="text-xs font-normal text-gray-400" x-text="'Margem Operacional: ' + summary.profit_margin + '%'"></span>
+                  </div>
+                </div>
+                <span class="text-lg" :class="summary.net_profit >= 0 ? 'text-emerald-600' : 'text-red-600'" x-text="formatCurrency(summary.net_profit)"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Top Serviços, Top Produtos e Despesas por Categoria -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Top Serviços -->
+            <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm">
+              <h2 class="font-bold text-gray-900 text-sm mb-1">Serviços Mais Rentáveis</h2>
+              <p class="text-xs text-gray-400 mb-3">Maiores receitas por atendimento</p>
+              <div class="space-y-2.5">
+                <template x-for="(svc, idx) in topServices" :key="idx">
+                  <div class="flex items-center justify-between text-xs py-1 border-b border-gray-50 last:border-0">
+                    <div class="min-w-0 pr-2">
+                      <span class="font-semibold text-gray-900 block truncate" x-text="svc.service_name"></span>
+                      <span class="text-gray-400" x-text="svc.count + ' atendimento(s)'"></span>
+                    </div>
+                    <span class="font-bold text-emerald-600 flex-shrink-0" x-text="formatCurrency(svc.total)"></span>
+                  </div>
+                </template>
+                <p x-show="topServices.length === 0" class="text-xs text-gray-400 italic">Sem atendimentos registrados no período.</p>
+              </div>
+            </div>
+
+            <!-- Top Produtos -->
+            <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm">
+              <h2 class="font-bold text-gray-900 text-sm mb-1">Produtos Mais Vendidos</h2>
+              <p class="text-xs text-gray-400 mb-3">Itens mais procurados no balcão</p>
+              <div class="space-y-2.5">
+                <template x-for="(prod, idx) in topProducts" :key="idx">
+                  <div class="flex items-center justify-between text-xs py-1 border-b border-gray-50 last:border-0">
+                    <div class="min-w-0 pr-2">
+                      <span class="font-semibold text-gray-900 block truncate" x-text="prod.product_name"></span>
+                      <span class="text-gray-400" x-text="prod.quantity + ' un vendida(s)'"></span>
+                    </div>
+                    <span class="font-bold text-emerald-600 flex-shrink-0" x-text="formatCurrency(prod.total)"></span>
+                  </div>
+                </template>
+                <p x-show="topProducts.length === 0" class="text-xs text-gray-400 italic">Sem vendas de balcão no período.</p>
+              </div>
+            </div>
+
+            <!-- Despesas por Categoria -->
+            <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm">
+              <h2 class="font-bold text-gray-900 text-sm mb-1">Despesas por Categoria</h2>
+              <p class="text-xs text-gray-400 mb-3">Onde os custos estão concentrados</p>
+              <div class="space-y-3">
+                <template x-for="cat in expensesByCategory" :key="cat.category">
+                  <div>
+                    <div class="flex items-center justify-between text-xs mb-1">
+                      <span class="font-medium text-gray-700" x-text="cat.category"></span>
+                      <span class="font-bold text-gray-900" x-text="formatCurrency(cat.total) + ' (' + cat.percentage + '%)'"></span>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                      <div class="bg-rose-500 h-1.5 rounded-full" :style="'width: ' + cat.percentage + '%'"></div>
+                    </div>
+                  </div>
+                </template>
+                <p x-show="expensesByCategory.length === 0" class="text-xs text-gray-400 italic">Nenhuma despesa no período.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col items-end"></div>
+    <script src="js/utils.js"></script>
+    <script src="js/financeiro.js"></script>
+  </body>
+</html>

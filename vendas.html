@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png"/>
+    <link rel="manifest" href="assets/site.webmanifest"/>
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"/>
+    <title>Vendas Diretas — Ericeira Designer</title>
+    <link href="tailwind_theme/tailwind.css" rel="stylesheet" type="text/css"/>
+    <script defer src="js/Alpine.js"></script>
+    <style>[x-cloak] { display: none !important; } body { font-family: 'Roboto', sans-serif; }</style>
+  </head>
+  <body class="bg-gray-50" x-data="vendasApp">
+    <header class="fixed inset-x-0 z-50 bg-white border-b border-gray-200 h-14 flex items-center px-4 gap-3">
+      <a href="dashboard.html" class="p-2 -ml-1 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-1.5" aria-label="Voltar ao painel">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        <span class="text-sm font-medium hidden sm:inline">Painel</span>
+      </a>
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <span class="font-semibold text-gray-900 text-sm">Vendas Diretas (PDV)</span>
+      </div>
+      <div class="flex items-center gap-1.5 ml-auto">
+        <div class="relative" x-data="{ avatarOpen: false }">
+          <button @click="avatarOpen = !avatarOpen" class="h-8 w-8 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center hover:bg-pink-200 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-300">
+            <span x-text="getUserDisplayName().charAt(0).toUpperCase()"></span>
+          </button>
+          <div x-show="avatarOpen" x-cloak @click.outside="avatarOpen = false" x-transition class="absolute right-0 top-10 bg-white rounded-xl shadow-xl border border-gray-200 py-1 w-52 z-50">
+            <div class="px-4 py-2.5 border-b border-gray-100">
+              <p class="text-xs font-semibold text-gray-900 truncate" x-text="getUserDisplayName()"></p>
+              <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mt-1" :class="{
+                'bg-purple-100 text-purple-700': getUserRole() === 'admin',
+                'bg-blue-100 text-blue-700': getUserRole() === 'receptionist',
+                'bg-emerald-100 text-emerald-700': getUserRole() === 'professional'
+              }" x-text="getUserRoleLabel()"></span>
+            </div>
+            <button @click="logout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+              Sair
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="min-h-screen pt-14">
+      <div class="p-4 lg:p-6 max-w-4xl mx-auto">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">Vendas Diretas no Balcão</h2>
+            <p class="text-sm text-gray-400 mt-0.5">Venda de produtos de revenda/homecare com baixa automática de estoque</p>
+          </div>
+          <button @click="openNewSaleForm()" class="flex items-center gap-2 bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition-colors shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            </svg>
+            Nova Venda
+          </button>
+        </div>
+
+        <div class="mb-5" x-show="sales.length > 0">
+          <input type="text" x-model="saleSearch" placeholder="Buscar por cliente, produto ou ID da venda..." class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600">
+        </div>
+
+        <div x-show="loading" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto"></div>
+          <p class="text-sm font-medium text-gray-500 mt-4">Carregando vendas...</p>
+        </div>
+
+        <div x-show="!loading && filteredSales().length === 0" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
+          <p class="text-3xl mb-2">🛍️</p>
+          <p class="text-sm font-medium text-gray-500" x-text="saleSearch ? 'Nenhuma venda encontrada para esta busca' : 'Nenhuma venda registrada'"></p>
+        </div>
+
+        <div class="space-y-3" x-show="!loading">
+          <template x-for="s in paginatedSales()" :key="s.id">
+            <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between shadow-sm hover:border-emerald-200 transition-colors">
+              <!-- Esquerda: Avatar com Inicial + Identificação da Venda e Detalhes -->
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center text-sm flex-shrink-0" x-text="s.client_name ? s.client_name.charAt(0).toUpperCase() : 'V'"></div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-bold text-gray-900 text-sm truncate" x-text="s.client_name || 'Cliente Avulso'"></span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100" x-text="'Venda #' + s.id"></span>
+                  </div>
+                  <div class="flex items-center gap-1.5 text-xs text-gray-400 mt-0.5 flex-wrap">
+                    <span class="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium text-[11px]" x-text="(s.items ? s.items.length : 0) + ' item(ns)'"></span>
+                    <span x-show="s.date" class="text-gray-300">•</span>
+                    <span x-show="s.date" x-text="formatDate(s.date)"></span>
+                    <span class="text-gray-300">•</span>
+                    <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full" :class="{
+                      'bg-emerald-50 text-emerald-700 border border-emerald-100': s.status === 'completed',
+                      'bg-amber-50 text-amber-700 border border-amber-100': s.status === 'pending',
+                      'bg-red-50 text-red-700 border border-red-100 line-through': s.status === 'cancelled'
+                    }" x-text="s.status === 'completed' ? 'Concluída' : (s.status === 'pending' ? 'Pendente' : (s.status === 'cancelled' ? 'Cancelada' : s.status))"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Direita: Valor em Destaque + Botões de Ação (Ver Detalhes e Excluir) -->
+              <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-3">
+                <span class="font-bold text-emerald-600 text-sm sm:text-base mr-1" x-text="formatCurrency(s.total)"></span>
+                <button @click="openSaleDetails(s)" class="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Ver Detalhes da Venda">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </button>
+                <button @click="deleteSale(s)" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Excluir Venda e Estornar Estoque">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </template>
+
+          <!-- Sentinela de Rolagem Infinita -->
+          <div x-show="hasMoreSales()" 
+               x-init="createInfiniteScrollObserver($el, () => loadMoreSales())" 
+               class="py-5 text-center flex items-center justify-center gap-2 text-xs text-gray-400">
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-emerald-500"></div>
+            <span>Carregando mais vendas...</span>
+          </div>
+
+          <!-- Rodapé de Contagem -->
+          <div x-show="!loading && filteredSales().length > 0" class="text-center py-3 text-xs text-gray-400">
+            <span x-text="'Exibindo ' + Math.min(displayedCount, filteredSales().length) + ' de ' + filteredSales().length + ' vendas'"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Nova Venda -->
+      <div x-show="openFormSale" x-cloak class="fixed inset-0 bg-black/40 z-50 flex items-end lg:items-center justify-center" x-transition>
+        <div @click.outside="openFormSale = false" class="bg-white w-full lg:max-w-lg lg:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+            <h3 class="font-bold text-gray-900">Nova Venda Direta (PDV)</h3>
+            <button @click="openFormSale = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-semibold text-gray-700 mb-1 block">Cliente</label>
+              <select x-model="formSale.client_id" class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-emerald-600">
+                <option value="">Cliente Consumidor (Avulso)</option>
+                <template x-for="c in clients" :key="c.id">
+                  <option :value="c.id" x-text="c.name"></option>
+                </template>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-gray-700 mb-1 block">Data *</label>
+              <input type="date" x-model="formSale.date" class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-emerald-600"/>
+            </div>
+          </div>
+
+          <!-- Itens da Venda -->
+          <div class="border-t border-gray-100 pt-3">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-bold text-gray-900 uppercase">Produtos da Venda</label>
+              <button @click="addItemToSale()" class="text-xs bg-emerald-50 text-emerald-700 font-bold px-2.5 py-1 rounded-lg hover:bg-emerald-100 transition-colors">+ Produto</button>
+            </div>
+
+            <div class="space-y-2">
+              <template x-for="(item, idx) in formSale.items" :key="idx">
+                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-xl">
+                  <select x-model="item.product_id" @change="onProductChange(idx)" class="flex-1 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-900 bg-white focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-emerald-600">
+                    <template x-for="p in products" :key="p.id">
+                      <option :value="p.id" x-text="p.name + ' (R$ ' + p.sale_price + ')'"></option>
+                    </template>
+                  </select>
+                  <input type="number" min="1" x-model="item.quantity" class="w-16 border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-center bg-white focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-emerald-600" placeholder="Qtd"/>
+                  <input type="number" step="0.01" x-model="item.unit_price" class="w-20 border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-right bg-white focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-emerald-600" placeholder="R$"/>
+                  <button @click="removeItemFromSale(idx)" class="text-red-500 hover:bg-red-50 p-1.5 rounded-lg text-xs">✕</button>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <div class="bg-emerald-50 rounded-xl p-3 flex items-center justify-between">
+            <span class="text-xs font-bold text-emerald-800">Total da Venda:</span>
+            <span class="text-base font-bold text-emerald-700" x-text="formatCurrency(calculateTotalSale())"></span>
+          </div>
+
+          <div class="flex gap-3 pt-2">
+            <button @click="openFormSale = false" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-2.5 rounded-xl hover:bg-gray-200 text-sm">Cancelar</button>
+            <button @click="postSale()" class="flex-1 bg-emerald-600 text-white font-bold py-2.5 rounded-xl hover:bg-emerald-700 text-sm">Finalizar Venda</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Detalhes da Venda -->
+      <div x-show="openDetailsSale" x-cloak class="fixed inset-0 bg-black/40 z-50 flex items-end lg:items-center justify-center" x-transition>
+        <div @click.outside="openDetailsSale = false" class="bg-white w-full lg:max-w-md lg:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+            <div>
+              <h3 class="font-bold text-gray-900" x-text="selectedSale ? 'Detalhes da Venda #' + selectedSale.id : ''"></h3>
+              <p class="text-xs text-gray-400 mt-0.5" x-text="selectedSale ? selectedSale.client_name : ''"></p>
+            </div>
+            <button @click="openDetailsSale = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+
+          <template x-if="selectedSale">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between text-xs text-gray-600 bg-gray-50 p-2.5 rounded-xl">
+                <span>Data: <strong class="text-gray-900" x-text="formatDate(selectedSale.date)"></strong></span>
+                <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full" :class="{
+                  'bg-emerald-100 text-emerald-800': selectedSale.status === 'completed',
+                  'bg-amber-100 text-amber-800': selectedSale.status === 'pending',
+                  'bg-red-100 text-red-800': selectedSale.status === 'cancelled'
+                }" x-text="selectedSale.status === 'completed' ? 'Concluída' : selectedSale.status"></span>
+              </div>
+
+              <div>
+                <p class="text-xs font-bold text-gray-700 uppercase mb-2">Produtos Comprados</p>
+                <div class="space-y-1.5 border border-gray-100 rounded-xl p-3 bg-gray-50/50">
+                  <template x-for="item in (selectedSale.items || [])" :key="item.id || item.product_id">
+                    <div class="flex items-center justify-between text-xs py-1 border-b border-gray-100 last:border-0">
+                      <div>
+                        <span class="font-semibold text-gray-900 block" x-text="item.product_name || 'Produto #' + item.product_id"></span>
+                        <span class="text-gray-400" x-text="item.quantity + 'x ' + formatCurrency(item.unit_price)"></span>
+                      </div>
+                      <span class="font-bold text-gray-800" x-text="formatCurrency(item.subtotal || (item.quantity * item.unit_price))"></span>
+                    </div>
+                  </template>
+                  <p x-show="!selectedSale.items || selectedSale.items.length === 0" class="text-xs text-gray-400 italic">Sem itens detalhados nesta venda.</p>
+                </div>
+              </div>
+
+              <div class="bg-emerald-50 rounded-xl p-3 flex items-center justify-between mt-2">
+                <span class="text-xs font-bold text-emerald-800">Total Pago:</span>
+                <span class="text-base font-bold text-emerald-700" x-text="formatCurrency(selectedSale.total)"></span>
+              </div>
+
+              <div class="flex gap-2 pt-2">
+                <button @click="openDetailsSale = false" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-2.5 rounded-xl hover:bg-gray-200 text-sm">Fechar</button>
+                <button @click="deleteSale(selectedSale)" class="bg-red-50 text-red-600 font-bold px-4 py-2.5 rounded-xl hover:bg-red-100 text-sm flex items-center gap-1.5 transition-colors">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                  Excluir
+                </button>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </main>
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col items-end"></div>
+    <script src="js/utils.js"></script>
+    <script src="js/vendas.js"></script>
+  </body>
+</html>

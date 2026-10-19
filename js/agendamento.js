@@ -1,360 +1,236 @@
 function agendaApp() {
   return {
     loading: true,
+    submitting: false,
+    availabilityLoading: false,
+
     form: {
       name: '',
       whatsapp: '',
-      service: [],
-      profissional: 'Vanusa Ericeira',
-      semana: '',
-      horario: '',
-      duracao: '',
-      deleteToken: '',
+      service: null,
+      professional: null,
+      date: '',
+      time: '',
     },
-    openService: false,
-    isExpanded: false,
+
+    openServiceDropdown: false,
     services: [],
-    professionals: ['Vanusa Ericeira'],
-    agendado: [],
-    semanas: [],
-    horarios: [
-      '08:00',
-      '08:05',
-      '08:10',
-      '08:15',
-      '08:20',
-      '08:25',
-      '08:30',
-      '08:35',
-      '08:40',
-      '08:45',
-      '08:50',
-      '08:55',
-      '09:00',
-      '09:05',
-      '09:10',
-      '09:15',
-      '09:20',
-      '09:25',
-      '09:30',
-      '09:35',
-      '09:40',
-      '09:45',
-      '09:50',
-      '09:55',
-      '10:00',
-      '10:05',
-      '10:10',
-      '10:15',
-      '10:20',
-      '10:25',
-      '10:30',
-      '10:35',
-      '10:40',
-      '10:45',
-      '10:50',
-      '10:55',
-      '11:00',
-      '11:05',
-      '11:10',
-      '11:15',
-      '11:20',
-      '11:25',
-      '11:30',
-      '11:35',
-      '11:40',
-      '11:45',
-      '11:50',
-      '11:55',
-      '12:00',
-      '14:00',
-      '14:05',
-      '14:10',
-      '14:15',
-      '14:20',
-      '14:25',
-      '14:30',
-      '14:35',
-      '14:40',
-      '14:45',
-      '14:50',
-      '14:55',
-      '15:00',
-      '15:05',
-      '15:10',
-      '15:15',
-      '15:20',
-      '15:25',
-      '15:30',
-      '15:35',
-      '15:40',
-      '15:45',
-      '15:50',
-      '15:55',
-      '16:00',
-      '16:05',
-      '16:10',
-      '16:15',
-      '16:20',
-      '16:25',
-      '16:30',
-      '16:35',
-      '16:40',
-      '16:45',
-      '16:50',
-      '16:55',
-      '17:00',
-      '17:05',
-      '17:10',
-      '17:15',
-      '17:20',
-      '17:25',
-      '17:30',
-      '17:35',
-      '17:40',
-      '17:45',
-      '17:50',
-      '17:55',
-      '18:00',
-      '18:05',
-      '18:10',
-      '18:15',
-      '18:20',
-      '18:25',
-      '18:30',
-      '18:35',
-      '18:40',
-      '18:45',
-      '18:50',
-      '18:55',
-      '19:00',
-    ],
-    horariosDisponiveis: [],
+    professionals: [],
+    dates: [],
+    availableSlots: [],
+    morningSlots: [],
+    afternoonSlots: [],
+    dayIsOpen: true,
+    dayMessage: '',
+
     clientScheduling: [],
-    successMessage: 'Preencha todos os campos',
+    bookingSuccess: null,
+    errorMessage: '',
 
-    async fetchClientScheduling() {
-      const storedScheduling = localStorage.getItem('agendamentos')
-      if (storedScheduling) {
-        this.clientScheduling = JSON.parse(storedScheduling)
-      }
-    },
-
-    async deleteClientScheduling(index) {
-      if (index < 0 || index >= this.clientScheduling.length) {
-        console.error('Índice inválido')
-        return
-      }
-
-      const scheduling = this.clientScheduling[index]
-
-      if (!scheduling.id || !scheduling.deleteToken) {
-        console.error('Agendamento sem ID ou deleteToken')
-        return
-      }
-
+    async init() {
+      this.loading = true
       try {
-        const response = await fetch(
-          `${getUrlBase()[getEnv()]}/json/api/v1/scheduling/${scheduling.id}`,
-          {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Delete-Token': scheduling.deleteToken,
-            },
-          }
-        )
+        await Promise.all([
+          this.fetchServices(),
+          this.fetchProfessionals()
+        ])
+        this.generateDates()
+        this.fetchClientScheduling()
 
-        const result = await response.json()
-
-        if (response.ok && result.success) {
-          // Remove do localStorage
-          const storedScheduling = JSON.parse(
-            localStorage.getItem('agendamentos') || '[]'
-          )
-          storedScheduling.splice(index, 1)
-          localStorage.setItem('agendamentos', JSON.stringify(storedScheduling))
-
-          // Atualiza a lista na tela
-          this.fetchClientScheduling()
-          this.fetchScheduling()
-        } else {
-          console.error(
-            'Erro ao deletar agendamento:',
-            result.error || result.message
-          )
-          showToast(
-            `Erro ao cancelar agendamento: ${result.error || 'Tente novamente'}`
-          )
+        // Seleciona o primeiro dia útil com expediente
+        if (this.dates.length > 0) {
+          this.form.date = this.dates[0].value
+          await this.fetchAvailability()
         }
-      } catch (error) {
-        console.error('Erro ao deletar agendamento:', error)
-        showToast('Erro ao cancelar agendamento. Verifique sua conexão.')
+      } catch (e) {
+        console.error('Erro na inicialização do agendamento:', e)
+      } finally {
+        this.loading = false
       }
-    },
-
-    updateDuracao() {
-      const selectedService = this.services.find(
-        (s) => s.id === this.form.service.id
-      )
-
-      if (selectedService) {
-        this.form.duracao = selectedService.duracao
-        this.updateAvailableHorarios()
-      }
-    },
-
-    populateWeeks() {
-      const today = new Date()
-
-      for (let i = 0; i <= 7; i++) {
-        const date = new Date(today)
-        date.setDate(today.getDate() + i)
-
-        const dia = String(date.getDate()).padStart(2, '0')
-        const mes = String(date.getMonth() + 1).padStart(2, '0')
-        const ano = date.getFullYear()
-
-        // Verifica se é domingo (0 é domingo no getDay())
-        if (date.getDay() === 0) {
-          continue // Pula a iteração se for domingo
-        }
-
-        const label = date
-          .toLocaleDateString('pt-BR', {
-            weekday: 'long',
-          })
-          .replace('-feira', '')
-          .replace(/^./, (str) => str.toUpperCase())
-        const day = date.getDate()
-        this.semanas.push({ value: `${ano}-${mes}-${dia}`, label, day })
-      }
-    },
-
-    isDisabledHorario(horario) {
-      const [hour, minute] = horario.split(':').map(Number)
-
-      // Se não há serviço ou data selecionados, não bloqueia nenhum horário
-      if (!this.form.duracao || !this.form.semana) {
-        return false
-      }
-
-      const currentTime = this.createDateTime(this.form.semana, hour, minute)
-      const clientStart = currentTime
-      const clientEnd = new Date(
-        currentTime.getTime() + this.form.duracao * 60000
-      )
-
-      // Horário de almoço fixo: 12:00 às 14:00
-      const lunchStart = this.createDateTime(this.form.semana, 12, 0)
-      const lunchEnd = this.createDateTime(this.form.semana, 14, 0)
-
-      // Verifica se o horário selecionado invade o horário de almoço
-      // Bloqueia horários que terminariam durante o almoço
-      if (clientStart < lunchEnd && clientEnd > lunchStart) {
-        return true // Bloqueia se invadir o horário de almoço
-      }
-
-      // Verifica conflito com agendamentos existentes
-      const hasConflict = this.agendado.some((a) => {
-        if (
-          a.professional !== this.form.profissional ||
-          a.date !== this.form.semana
-        ) {
-          return false
-        }
-
-        // Converte o horário agendado para objeto Date
-        const [hours, minutes] = a.time.split(':').map(Number)
-        const scheduledTime = this.createDateTime(a.date, hours, minutes)
-
-        // Calcula o início e fim do agendamento EXISTENTE
-        const existingStart = scheduledTime
-        const existingEnd = new Date(
-          scheduledTime.getTime() + a.duration * 60000
-        )
-
-        // Verifica se há sobreposição entre os dois intervalos
-        // Há conflito se: clientStart < existingEnd E clientEnd > existingStart
-        const conflict = clientStart < existingEnd && clientEnd > existingStart
-
-        return conflict
-      })
-
-      return hasConflict
-    },
-
-    createDateTime(date, hours, minutes) {
-      const [year, month, day] = date.split('-').map(Number)
-      return new Date(year, month - 1, day, hours, minutes)
-    },
-
-    updateAvailableHorarios() {
-      const now = new Date()
-      const currentHour = now.getHours()
-      const currentMinute = now.getMinutes()
-
-      const todayStr =
-        now.getFullYear() +
-        '-' +
-        String(now.getMonth() + 1).padStart(2, '0') +
-        '-' +
-        String(now.getDate()).padStart(2, '0')
-      const isTodaySelected = this.form.semana === todayStr
-
-      this.horariosDisponiveis = this.horarios
-        .filter((horario) => {
-          const [hour, minute] = horario.split(':').map(Number)
-
-          if (isTodaySelected) {
-            if (hour > currentHour) return true
-            if (hour === currentHour && minute > currentMinute) return true
-            return false
-          }
-
-          return true
-        })
-        .map((horario) => ({ value: horario, label: horario }))
     },
 
     async fetchServices() {
-      const cacheKey = 'cached_services';
-      const cacheTime = 5 * 60 * 1000;
-      const cached = localStorage.getItem(cacheKey);
-      const cachedData = cached ? JSON.parse(cached) : null;
-
-      if (cachedData && Date.now() - cachedData.timestamp < cacheTime) {
-        this.services = cachedData.services;
-        return;
-      }
-
       try {
         const response = await fetch(
           getUrlBase()[getEnv()] + '/json/api/v1/services'
         )
-        this.services = await response.json()
+        const raw = await response.json()
+        const list = Array.isArray(raw) ? raw : (raw.services || [])
+        this.services = list
+          .filter(s => s.active !== false && s.active !== 0)
+          .map(s => ({
+            id: s.id,
+            name: s.name || s.nome || '',
+            price: parseFloat(s.price !== undefined ? s.price : (s.valor || 0)),
+            duration: parseInt(s.duration !== undefined ? s.duration : (s.duracao || 60)),
+            description: s.description || s.descricao || ''
+          }))
 
-        localStorage.setItem(cacheKey, JSON.stringify({
-          services: this.services,
-          timestamp: Date.now(),
-        }))
+        if (this.services.length > 0 && !this.form.service) {
+          this.form.service = this.services[0]
+        }
       } catch (error) {
         console.error('Erro ao buscar serviços:', error)
       }
     },
 
-    async fetchScheduling() {
+    async fetchProfessionals() {
       try {
         const response = await fetch(
-          getUrlBase()[getEnv()] + '/json/api/v1/scheduling'
+          getUrlBase()[getEnv()] + '/json/api/v1/professionals?active=1&has_schedule=1'
         )
-        this.agendado = await response.json()
+        const raw = await response.json()
+        const list = Array.isArray(raw) ? raw : (raw.professionals || [])
+        this.professionals = list.map(p => ({
+          id: p.id,
+          name: p.name,
+          specialty: p.specialty || 'Designer & Micropigmentadora'
+        }))
+
+        if (this.professionals.length > 0) {
+          this.form.professional = this.professionals[0]
+        }
       } catch (error) {
-        console.error('Erro ao buscar agendamentos:', error)
+        console.error('Erro ao buscar profissionais:', error)
+      }
+    },
+
+    generateDates() {
+      const dates = []
+      const today = new Date()
+      const weekDaysShort = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+      const weekDaysFull = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']
+
+      // Gera os próximos 14 dias
+      for (let i = 0; i < 14; i++) {
+        const d = new Date(today)
+        d.setDate(today.getDate() + i)
+
+        // Pula domingos por padrão do estabelecimento
+        if (d.getDay() === 0) continue
+
+        const year = d.getFullYear()
+        const month = String(d.getMonth() + 1).padStart(2, '0')
+        const day = String(d.getDate()).padStart(2, '0')
+        const value = `${year}-${month}-${day}`
+
+        dates.push({
+          value,
+          dayNum: day,
+          dayName: weekDaysShort[d.getDay()],
+          fullWeekday: weekDaysFull[d.getDay()],
+          isToday: i === 0,
+          isTomorrow: i === 1
+        })
+      }
+
+      this.dates = dates
+    },
+
+    selectDate(dateItem) {
+      if (this.form.date === dateItem.value) return
+      this.form.date = dateItem.value
+      this.form.time = ''
+      this.fetchAvailability()
+    },
+
+    selectService(svc) {
+      this.form.service = svc
+      this.openServiceDropdown = false
+      this.form.time = ''
+      this.fetchAvailability()
+    },
+
+    selectProfessional(prof) {
+      if (this.form.professional?.id === prof.id) return
+      this.form.professional = prof
+      this.form.time = ''
+      this.fetchAvailability()
+    },
+
+    async fetchAvailability() {
+      if (!this.form.date || !this.form.professional) return
+
+      this.availabilityLoading = true
+      this.errorMessage = ''
+
+      const profId = this.form.professional.id
+      const date = this.form.date
+      const duration = this.form.service?.duration || 60
+      const serviceId = this.form.service?.id || 0
+
+      try {
+        const url = `${getUrlBase()[getEnv()]}/json/api/v1/public/availability?professional_id=${profId}&date=${date}&duration=${duration}&service_id=${serviceId}`
+        const response = await fetch(url)
+        const data = await response.json()
+
+        if (data.is_open === false) {
+          this.dayIsOpen = false
+          this.dayMessage = data.message || 'Profissional não atende nesta data'
+          this.availableSlots = []
+          this.morningSlots = []
+          this.afternoonSlots = []
+        } else {
+          this.dayIsOpen = true
+          this.dayMessage = ''
+          this.availableSlots = data.slots || []
+
+          // Divide em Manhã e Tarde
+          this.morningSlots = this.availableSlots.filter(t => {
+            const h = parseInt(t.split(':')[0])
+            return h < 12
+          })
+          this.afternoonSlots = this.availableSlots.filter(t => {
+            const h = parseInt(t.split(':')[0])
+            return h >= 12
+          })
+
+          // Se o horário previamente selecionado não estiver mais disponível, desseleciona
+          if (this.form.time && !this.availableSlots.includes(this.form.time)) {
+            this.form.time = ''
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao buscar disponibilidade:', error)
+        this.dayIsOpen = false
+        this.dayMessage = 'Não foi possível carregar os horários para este dia.'
+      } finally {
+        this.availabilityLoading = false
       }
     },
 
     async registrarAgendamento() {
+      this.errorMessage = ''
+
+      if (!this.form.name || this.form.name.trim().length < 2) {
+        this.errorMessage = 'Por favor, informe seu nome completo.'
+        return
+      }
+
+      const rawPhone = this.form.whatsapp.replace(/\D/g, '')
+      if (rawPhone.length < 10) {
+        this.errorMessage = 'Informe um número de WhatsApp válido com DDD.'
+        return
+      }
+
+      if (!this.form.service) {
+        this.errorMessage = 'Selecione um procedimento para o atendimento.'
+        return
+      }
+
+      if (!this.form.date) {
+        this.errorMessage = 'Selecione a data desejada.'
+        return
+      }
+
+      if (!this.form.time) {
+        this.errorMessage = 'Selecione um horário disponível.'
+        return
+      }
+
+      this.submitting = true
+      const deleteToken = this.generateSecureUUID()
+
       try {
         const response = await fetch(
           getUrlBase()[getEnv()] + '/json/api/v1/scheduling',
@@ -365,80 +241,165 @@ function agendaApp() {
               name: this.form.name.trim(),
               whatsapp: this.form.whatsapp.trim(),
               service: this.form.service.name,
-              professional: this.form.profissional.trim(),
-              date: this.form.semana.trim(),
-              time: this.form.horario.trim(),
-              duration: this.form.duracao,
-              deleteToken: this.generateSecureUUID(),
+              service_id: this.form.service.id,
+              professional: this.form.professional ? this.form.professional.name : 'Vanusa Ericeira',
+              professional_id: this.form.professional ? this.form.professional.id : 1,
+              date: this.form.date,
+              time: this.form.time,
+              duration: this.form.service.duration,
+              deleteToken: deleteToken,
             }),
           }
         )
-        const newScheduling = await response.json()
-        const schedulingStorage =
-          JSON.parse(localStorage.getItem('agendamentos')) || []
-        schedulingStorage.push(newScheduling.meta_input)
-        localStorage.setItem('agendamentos', JSON.stringify(schedulingStorage))
 
-        if (response.ok) {
-          this.successMessage = 'Agendado!'
-          setTimeout(() => {
-            this.successMessage = '(...)'
-            this.successMessage = 'Preencha todos os campos'
-          }, 8000)
+        const result = await response.json()
+
+        if (!response.ok) {
+          this.errorMessage = result.error || 'Ocorreu um erro ao registrar. Tente novamente.'
+          showToast(this.errorMessage, 'error')
+          return
         }
 
-        this.agendado.push(newScheduling.meta_input)
-        this.fetchScheduling()
+        const newScheduling = result.meta_input || {
+          id: result.id,
+          name: this.form.name.trim(),
+          whatsapp: this.form.whatsapp.trim(),
+          service: this.form.service.name,
+          professional: this.form.professional?.name || 'Vanusa Ericeira',
+          date: this.form.date,
+          time: this.form.time,
+          duration: this.form.service.duration,
+          deleteToken: deleteToken
+        }
+
+        // Salva nos agendamentos locais do navegador do cliente
+        const stored = JSON.parse(localStorage.getItem('agendamentos') || '[]')
+        stored.unshift(newScheduling)
+        localStorage.setItem('agendamentos', JSON.stringify(stored))
         this.fetchClientScheduling()
-        this.form = {
-          name: '',
-          whatsapp: '',
-          service: { label: 'Escolha seu Procedimento' },
-          profissional: 'Vanusa Ericeira',
-          semana: '',
-          horario: '',
+
+        // Invalida cache do painel
+        if (typeof invalidateCache === 'function') {
+          invalidateCache('dashboard')
+          invalidateCache('scheduling')
         }
+
+        this.bookingSuccess = newScheduling
+        showToast('Agendamento confirmado com sucesso!', 'success')
+
+        // Atualiza a disponibilidade para o horário recém-ocupado sumir
+        await this.fetchAvailability()
       } catch (error) {
-        console.error('Erro ao registrar agendamento:', error)
+        console.error('Erro ao agendar:', error)
+        this.errorMessage = 'Erro ao conectar ao servidor. Verifique sua conexão.'
+        showToast(this.errorMessage, 'error')
+      } finally {
+        this.submitting = false
       }
     },
 
-    isDisableButton() {
-      if (
-        this.form.whatsapp.replace(/\D/g, '').length < 11 ||
-        !this.form.service ||
-        !this.form.profissional ||
-        !this.form.semana ||
-        !this.form.horario
-      ) {
-        this.successMessage = 'Preencha todos os campos'
-        return true
-      } else {
-        this.successMessage = 'Agendar'
-        return false
+    newBooking() {
+      this.bookingSuccess = null
+      this.form.time = ''
+      this.fetchAvailability()
+    },
+
+    fetchClientScheduling() {
+      try {
+        const stored = localStorage.getItem('agendamentos')
+        this.clientScheduling = stored ? JSON.parse(stored) : []
+      } catch (e) {
+        this.clientScheduling = []
+      }
+    },
+
+    async deleteClientScheduling(index) {
+      if (!confirm('Deseja realmente cancelar este agendamento?')) return
+
+      const item = this.clientScheduling[index]
+      if (!item || !item.id || !item.deleteToken) {
+        showToast('Não foi possível identificar o agendamento', 'error')
+        return
+      }
+
+      try {
+        const response = await fetch(
+          `${getUrlBase()[getEnv()]}/json/api/v1/scheduling/${item.id}`,
+          {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Delete-Token': item.deleteToken,
+            },
+          }
+        )
+
+        const result = await response.json()
+        if (response.ok && result.success) {
+          this.clientScheduling.splice(index, 1)
+          localStorage.setItem('agendamentos', JSON.stringify(this.clientScheduling))
+          showToast('Agendamento cancelado com sucesso', 'success')
+          if (typeof invalidateCache === 'function') {
+            invalidateCache('dashboard')
+            invalidateCache('scheduling')
+          }
+          await this.fetchAvailability()
+        } else {
+          showToast(result.error || 'Falha ao cancelar agendamento', 'error')
+        }
+      } catch (e) {
+        console.error('Erro ao cancelar:', e)
+        showToast('Erro ao cancelar agendamento', 'error')
       }
     },
 
     generateSecureUUID() {
       return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
-        (
-          c ^
-          (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
-        ).toString(16)
+        (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
       )
     },
 
-    init() {
-      this.loading = true
-      Promise.all([
-        this.fetchServices(),
-        this.fetchScheduling(),
-      ]).then(() => {
-        this.populateWeeks()
-        this.updateAvailableHorarios()
-        this.loading = false
-      })
-      this.fetchClientScheduling()
+    formatDisplayDate(dateStr) {
+      if (!dateStr) return ''
+      const parts = dateStr.split('-')
+      if (parts.length !== 3) return dateStr
+      return `${parts[2]}/${parts[1]}/${parts[0]}`
     },
+
+    addToGoogleCalendar(booking) {
+      if (!booking || !booking.date || !booking.time) return
+      try {
+        const duration = Number(booking.duration) || 60
+        const startDate = new Date(booking.date + 'T' + booking.time + ':00')
+        const endDate = new Date(startDate.getTime() + duration * 60000)
+
+        const pad = (n) => String(n).padStart(2, '0')
+        const formatIso = (d) => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`
+
+        const startIso = formatIso(startDate)
+        const endIso = formatIso(endDate)
+
+        const title = encodeURIComponent(`Atendimento: ${booking.service} — Ericeira Designer`)
+        const details = encodeURIComponent(`Agendamento de ${booking.service} com ${booking.professional || 'Ericeira Designer'}.\nCliente: ${booking.name}\nWhatsApp: ${booking.whatsapp}`)
+        const location = encodeURIComponent('Ericeira Designer')
+
+        const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startIso}/${endIso}&details=${details}&location=${location}`
+        window.open(calUrl, '_blank')
+      } catch (e) {
+        console.warn('Erro ao abrir Google Agenda:', e)
+      }
+    },
+
+    notifyWhatsApp(booking) {
+      if (!booking) return
+      try {
+        // Envia mensagem direta de confirmação no WhatsApp
+        const studioNumber = '98985367006'
+        const msg = encodeURIComponent(`Olá! Acabei de realizar meu agendamento pelo site:\n\n✨ *Procedimento:* ${booking.service}\n📅 *Data:* ${this.formatDisplayDate(booking.date)} às ${booking.time}\n👤 *Cliente:* ${booking.name}\n💆‍♀️ *Profissional:* ${booking.professional}`)
+        window.open(`https://api.whatsapp.com/send?phone=+55${studioNumber}&text=${msg}`, '_blank')
+      } catch (e) {
+        console.warn('Erro ao abrir WhatsApp:', e)
+      }
+    }
   }
 }

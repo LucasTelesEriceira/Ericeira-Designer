@@ -6,3 +6,8 @@ projectdb.pgml
 console.md
 .env
 node_modules/
+payload.json
+rascunho.md
+.agents/
+alpine-js-lucas-skill/
+*.code-workspace

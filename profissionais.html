@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png"/>
+    <link rel="manifest" href="assets/site.webmanifest"/>
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"/>
+    <title>Profissionais — Ericeira Designer</title>
+    <link href="tailwind_theme/tailwind.css" rel="stylesheet" type="text/css"/>
+    <script defer src="js/Alpine-Mask.js"></script>
+    <script defer src="js/Alpine.js"></script>
+    <style>[x-cloak] { display: none !important; } body { font-family: 'Roboto', sans-serif; }</style>
+  </head>
+  <body class="bg-gray-50" x-data="profissionaisApp">
+    <header class="fixed inset-x-0 z-50 bg-white border-b border-gray-200 h-14 flex items-center px-4 gap-3">
+      <a href="dashboard.html" class="p-2 -ml-1 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors flex items-center gap-1.5" aria-label="Voltar ao painel">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        <span class="text-sm font-medium hidden sm:inline">Painel</span>
+      </a>
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <span class="font-semibold text-gray-900 text-sm">Profissionais</span>
+      </div>
+      <div class="flex items-center gap-1.5 ml-auto">
+        <div class="relative" x-data="{ avatarOpen: false }">
+          <button @click="avatarOpen = !avatarOpen" class="h-8 w-8 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center hover:bg-pink-200 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-300">
+            <span x-text="getUserDisplayName().charAt(0).toUpperCase()"></span>
+          </button>
+          <div x-show="avatarOpen" x-cloak @click.outside="avatarOpen = false" x-transition class="absolute right-0 top-10 bg-white rounded-xl shadow-xl border border-gray-200 py-1 w-52 z-50">
+            <div class="px-4 py-2.5 border-b border-gray-100">
+              <p class="text-xs font-semibold text-gray-900 truncate" x-text="getUserDisplayName()"></p>
+              <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mt-1" :class="{
+                'bg-purple-100 text-purple-700': getUserRole() === 'admin',
+                'bg-blue-100 text-blue-700': getUserRole() === 'receptionist',
+                'bg-emerald-100 text-emerald-700': getUserRole() === 'professional'
+              }" x-text="getUserRoleLabel()"></span>
+            </div>
+            <button @click="logout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+              Sair
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="min-h-screen pt-14">
+      <div class="p-4 lg:p-6 max-w-3xl mx-auto">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">Profissionais</h2>
+            <p class="text-sm text-gray-400 mt-0.5">Gerencie os colaboradores e especialistas do estúdio</p>
+          </div>
+          <button @click="openNewProfessionalForm()" class="flex items-center gap-2 bg-pink-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-pink-600 transition-colors">
+            + Novo Profissional
+          </button>
+        </div>
+
+        <div x-show="loading" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500 mx-auto"></div>
+          <p class="text-sm font-medium text-gray-500 mt-4">Carregando profissionais...</p>
+        </div>
+
+        <div x-show="!loading && professionals.length === 0" class="bg-white border border-dashed border-gray-200 rounded-xl p-10 text-center">
+          <p class="text-3xl mb-2">👤</p>
+          <p class="text-sm font-medium text-gray-500">Nenhum profissional cadastrado</p>
+        </div>
+
+        <div class="space-y-3" x-show="!loading">
+          <template x-for="p in professionals" :key="p.id">
+            <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+              <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full bg-pink-100 text-pink-700 font-bold text-sm flex items-center justify-center shrink-0">
+                  <span x-text="p.name ? p.name.charAt(0).toUpperCase() : '?'"></span>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <p class="font-bold text-gray-900 text-sm" x-text="p.name"></p>
+                    <span class="text-xs font-bold px-2 py-0.5 rounded-full" :class="p.active ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-gray-100 text-gray-500'" x-text="p.active ? 'Ativo' : 'Inativo'"></span>
+                    <span x-show="p.user_id" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-100">Com Acesso (WP)</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-xs text-gray-400 mt-0.5">
+                    <span x-show="p.specialty" x-text="p.specialty"></span>
+                    <span x-show="p.whatsapp" x-text="p.whatsapp"></span>
+                  </div>
+                </div>
+              </div>
+              <button @click="openEditProfessionalForm(p)" class="text-xs bg-gray-100 text-gray-700 font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors">
+                Editar
+              </button>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Modal Profissional -->
+      <div x-show="openFormProfessional" x-cloak class="fixed inset-0 bg-black/40 z-50 flex items-end lg:items-center justify-center" x-transition>
+        <div @click.outside="openFormProfessional = false" class="bg-white w-full lg:max-w-md lg:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+            <h3 class="font-bold text-gray-900" x-text="formProfessional.id ? 'Editar Profissional' : 'Novo Profissional'"></h3>
+            <button @click="openFormProfessional = false" class="text-gray-400 hover:text-gray-600">✕</button>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-gray-700 mb-1 block">Nome Completo *</label>
+            <input type="text" x-model="formProfessional.name" class="w-full border rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600" :class="errors.name ? 'border-red-400' : 'border-gray-200'" placeholder="Ex: Vanusa Ericeira"/>
+            <p x-show="errors.name" class="text-xs text-red-500 mt-1" x-text="errors.name"></p>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-gray-700 mb-1 block">WhatsApp *</label>
+            <input type="text" x-model="formProfessional.whatsapp" class="w-full border rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600" :class="errors.whatsapp ? 'border-red-400' : 'border-gray-200'" placeholder="5511999998888"/>
+            <p x-show="errors.whatsapp" class="text-xs text-red-500 mt-1" x-text="errors.whatsapp"></p>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-gray-700 mb-1 block">E-mail</label>
+            <input type="email" x-model="formProfessional.email" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600" placeholder="profissional@ericeira.com"/>
+            <p x-show="errors.email" class="text-xs text-red-500 mt-1" x-text="errors.email"></p>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-gray-700 mb-1 block">Especialidade</label>
+            <input type="text" x-model="formProfessional.specialty" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600" placeholder="Ex: Designer & Micropigmentação"/>
+          </div>
+          <div class="flex items-center gap-2 pt-1">
+            <input type="checkbox" id="prof-active" x-model="formProfessional.active" class="rounded border-gray-300 text-pink-600 focus:ring-pink-500"/>
+            <label for="prof-active" class="text-xs font-semibold text-gray-700 cursor-pointer">Profissional Ativo para Agendamentos</label>
+          </div>
+
+          <!-- Bloco Acesso ao Sistema -->
+          <div class="border-t border-gray-100 pt-3 space-y-3">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="create-user" x-model="formProfessional.create_user" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500"/>
+              <label for="create-user" class="text-xs font-bold text-purple-900 cursor-pointer">Criar / Atualizar Conta de Acesso (Login no Sistema)</label>
+            </div>
+
+            <div x-show="formProfessional.create_user" x-cloak class="bg-purple-50 rounded-xl p-3 space-y-3">
+              <div>
+                <label class="text-xs font-semibold text-purple-900 mb-1 block">Perfil de Permissão (Role) *</label>
+                <select x-model="formProfessional.user_role" class="w-full border border-purple-200 rounded-xl px-3 py-2 text-xs text-gray-900 bg-white focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600">
+                  <option value="professional">Profissional (Acesso apenas à própria agenda e O.S.)</option>
+                  <option value="receptionist">Recepcionista (Agendamentos, Clientes, Vendas Balcão)</option>
+                  <option value="admin">Administrador (Acesso total ao sistema e finanças)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="text-xs font-semibold text-purple-900 mb-1 block" x-text="formProfessional.id ? 'Nova Senha de Acesso (deixe em branco para não alterar)' : 'Senha Inicial de Acesso *'"></label>
+                <input type="password" x-model="formProfessional.password" class="w-full border border-purple-200 rounded-xl px-3 py-2 text-xs text-gray-900 bg-white focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600" placeholder="••••••••"/>
+                <p x-show="errors.password" class="text-xs text-red-500 mt-1" x-text="errors.password"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-3 pt-2">
+            <button @click="openFormProfessional = false" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-2.5 rounded-xl hover:bg-gray-200 text-sm">Cancelar</button>
+            <button @click="postProfessional()" class="flex-1 bg-pink-500 text-white font-bold py-2.5 rounded-xl hover:bg-pink-600 text-sm">Salvar</button>
+          </div>
+        </div>
+      </div>
+    </main>
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col items-end"></div>
+    <script src="js/utils.js"></script>
+    <script src="js/profissionais.js"></script>
+  </body>
+</html>

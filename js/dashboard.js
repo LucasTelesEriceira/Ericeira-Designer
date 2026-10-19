@@ -9,7 +9,21 @@ function dashboardApp() {
     expensesCount: 0,
     clientCount: 0,
     concludedCount: 0,
+    monthRevenue: 0,
+    monthExpenses: 0,
+    monthProfit: 0,
+    monthTicket: 0,
     todayLabel: getTodayLabel(),
+
+    formatCurrency(val) {
+      if (typeof formatCurrency === 'function') {
+        return formatCurrency(val)
+      }
+      return 'R$ ' + parseFloat(val || 0).toFixed(2)
+    },
+
+    notificationPermission: typeof getNotificationPermission === 'function' ? getNotificationPermission() : 'default',
+    canInstallPwa: false,
 
     async init() {
       if (!localStorage.getItem('jwtToken')) {
@@ -17,109 +31,96 @@ function dashboardApp() {
         return
       }
       this.loading = true
-      await Promise.all([
-        this.fetchSchedulingToday(),
-        this.fetchSchedulingTomorrow(),
-        this.fetchSchedulingOther_days(),
-        this.fetchServices(),
-        this.fetchInputInvoices(),
-        this.fetchExpenses(),
-        this.fetchConcludedCount(),
-      ])
+      await this.loadSummary()
+
+      this.notificationPermission = typeof getNotificationPermission === 'function' ? getNotificationPermission() : 'default'
+      window.addEventListener('pwa-installable', () => {
+        this.canInstallPwa = true
+      })
+      if (window.deferredInstallPrompt) {
+        this.canInstallPwa = true
+      }
+
+      if (typeof startAppointmentMonitor === 'function') {
+        startAppointmentMonitor({
+          onSync: () => this.loadSummary(),
+          intervalMs: 25000
+        })
+      }
+    },
+
+    async toggleNotificationPermission() {
+      if (this.notificationPermission === 'granted') {
+        if (typeof playAppointmentChime === 'function') playAppointmentChime()
+        if (typeof showToast === 'function') showToast('Notificações ativas! Som de teste reproduzido.', 'success')
+        return
+      }
+      if (typeof requestNotificationPermission === 'function') {
+        await requestNotificationPermission()
+        this.notificationPermission = typeof getNotificationPermission === 'function' ? getNotificationPermission() : 'default'
+      }
+    },
+
+    installPwa() {
+      if (typeof promptPwaInstall === 'function') promptPwaInstall()
+    },
+
+    getUserRole() {
+      return getUserRole()
+    },
+
+    getUserRoleLabel() {
+      return getUserRoleLabel()
+    },
+
+    getUserDisplayName() {
+      return getUserDisplayName()
+    },
+
+    hasPermission(roles) {
+      return hasPermission(roles)
+    },
+
+    applySummary(data) {
+      if (!data) return
+      // Arrays preenchidos garantem compatibilidade imediata com schedulingToday.length no HTML
+      this.schedulingToday = new Array(data.today_count || 0).fill(null)
+      this.schedulingTomorrow = new Array(data.tomorrow_count || 0).fill(null)
+      this.schedulingOther_days = new Array(data.other_days_count || 0).fill(null)
+      this.servicesCount = data.services_count || 0
+      this.inputInvoiceCount = data.payments_count || 0
+      this.expensesCount = data.expenses_count || 0
+      this.clientCount = data.clients_count || 0
+      this.concludedCount = data.concluded_count || 0
+      this.monthRevenue = data.month_revenue || 0
+      this.monthExpenses = data.month_expenses || 0
+      this.monthProfit = data.month_profit || 0
+      this.monthTicket = data.month_ticket || 0
       this.loading = false
     },
 
-    async fetchSchedulingToday() {
+    async loadSummary() {
+      const url = getUrlBase()[getEnv()] + '/json/api/v1/dashboard/summary'
       try {
-        const response = await fetch(
-          getUrlBase()[getEnv()] + '/json/api/v1/scheduling/today',
-          { headers: getAuthHeaders() }
+        // Reduz de 8 requisições pesadas para 1 única requisição leve com cache SWR
+        const data = await fetchWithCache(
+          url,
+          { headers: getAuthHeaders() },
+          {
+            ttl: 20000, // 20s de frescor
+            onUpdate: (freshData) => {
+              this.applySummary(freshData)
+            }
+          }
         )
-        if (handleAuthError(response)) return
-        this.schedulingToday = await response.json()
+        if (data) {
+          this.applySummary(data)
+        }
       } catch (error) {
-        console.error('Erro ao buscar agendamentos de hoje:', error)
+        console.error('Erro ao carregar resumo do painel:', error)
+      } finally {
+        this.loading = false
       }
-    },
-
-    async fetchSchedulingTomorrow() {
-      try {
-        const response = await fetch(
-          getUrlBase()[getEnv()] + '/json/api/v1/scheduling/tomorrow',
-          { headers: getAuthHeaders() }
-        )
-        if (handleAuthError(response)) return
-        this.schedulingTomorrow = await response.json()
-      } catch (error) {
-        console.error('Erro ao buscar agendamentos de amanhã:', error)
-      }
-    },
-
-    async fetchSchedulingOther_days() {
-      try {
-        const response = await fetch(
-          getUrlBase()[getEnv()] + '/json/api/v1/scheduling/other_days',
-          { headers: getAuthHeaders() }
-        )
-        if (handleAuthError(response)) return
-        this.schedulingOther_days = await response.json()
-      } catch (error) {
-        console.error('Erro ao buscar agendamentos futuros:', error)
-      }
-    },
-
-    async fetchServices() {
-      try {
-        const response = await fetch(
-          getUrlBase()[getEnv()] + '/json/api/v1/services'
-        )
-        const data = await response.json()
-        this.servicesCount = data.length
-      } catch (error) {
-        console.error('Erro ao buscar serviços:', error)
-      }
-    },
-
-    async fetchInputInvoices() {
-      try {
-        const response = await fetch(
-          getUrlBase()[getEnv()] + '/json/api/v1/inputInvoices',
-          { headers: getAuthHeaders() }
-        )
-        if (handleAuthError(response)) return
-        const data = await response.json()
-        this.inputInvoiceCount = data.length
-      } catch (error) {
-        console.error('Erro ao buscar faturas:', error)
-      }
-    },
-
-    async fetchExpenses() {
-      try {
-        const response = await fetch(
-          getUrlBase()[getEnv()] + '/json/api/v1/expenses',
-          { headers: getAuthHeaders() }
-        )
-        if (handleAuthError(response)) return
-        const data = await response.json()
-        this.expensesCount = data.length
-      } catch (error) {
-        console.error('Erro ao buscar despesas:', error)
-      }
-    },
-
-    async fetchConcludedCount() {
-      try {
-        const response = await fetch(
-          getUrlBase()[getEnv()] + '/json/api/v1/scheduling/concluded',
-          { headers: getAuthHeaders() }
-        )
-        if (handleAuthError(response)) return
-        const data = await response.json()
-        this.concludedCount = data.length
-      } catch (error) {
-        console.error('Erro ao buscar concluídos:', error)
-      }
-    },
+    }
   }
 }
