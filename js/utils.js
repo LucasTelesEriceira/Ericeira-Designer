@@ -6,7 +6,20 @@ function getUrlBase() {
 }
 
 function getEnv() {
-  return 'development'
+  const forcedEnv = localStorage.getItem('api_env')
+  if (forcedEnv === 'production' || forcedEnv === 'development') {
+    return forcedEnv
+  }
+  const host = window.location.hostname
+  if (
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host.endsWith('.teste') ||
+    host.endsWith('.local')
+  ) {
+    return 'development'
+  }
+  return 'production'
 }
 
 function getAuthHeaders() {
