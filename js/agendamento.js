@@ -77,7 +77,7 @@ function agendaApp() {
     async fetchProfessionals() {
       try {
         const response = await fetch(
-          getUrlBase()[getEnv()] + '/json/api/v1/professionals?active=1&has_schedule=1'
+          getUrlBase()[getEnv()] + '/json/api/v1/professionals?active=1'
         )
         const raw = await response.json()
         const list = Array.isArray(raw) ? raw : (raw.professionals || [])
@@ -87,7 +87,7 @@ function agendaApp() {
           specialty: p.specialty || 'Designer & Micropigmentadora'
         }))
 
-        if (this.professionals.length > 0) {
+        if (this.professionals.length > 0 && !this.form.professional) {
           this.form.professional = this.professionals[0]
         }
       } catch (error) {

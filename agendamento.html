@@ -119,17 +119,62 @@
       <!-- FORMULÁRIO DE AGENDAMENTO -->
       <form x-show="!loading && !bookingSuccess" @submit.prevent="registrarAgendamento" class="p-5 sm:p-7 space-y-6">
 
-        <!-- 1. Profissional em Destaque -->
-        <div class="bg-gradient-to-r from-pink-50/70 to-rose-50/40 rounded-2xl p-3.5 border border-pink-100 flex items-center gap-3.5">
-          <img src="assets/vanusaIII.png" alt="Vanusa Ericeira" class="h-12 w-12 rounded-full object-cover border-2 border-pink-300 shadow-sm"/>
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-2">
-              <h2 class="text-sm font-bold text-gray-900 truncate" x-text="form.professional?.name || 'Vanusa Ericeira'"></h2>
-              <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
-                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Disponível
-              </span>
+        <!-- 1. Profissional do Atendimento -->
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+              Profissional do Atendimento
+            </label>
+            <span x-show="professionals.length > 1" class="text-[11px] text-pink-600 font-semibold">
+              <span x-text="professionals.length"></span> disponíveis
+            </span>
+          </div>
+
+          <!-- Cards Selecionáveis (quando há mais de 1 profissional) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" x-show="professionals.length > 1">
+            <template x-for="p in professionals" :key="p.id">
+              <div @click="selectProfessional(p)"
+                   :class="form.professional?.id === p.id ? 'border-pink-500 bg-pink-50/70 shadow-sm ring-2 ring-pink-500/20' : 'border-gray-200 bg-white hover:border-pink-200 hover:bg-gray-50/50'"
+                   class="border rounded-2xl p-3 flex items-center gap-3 cursor-pointer transition-all">
+                <template x-if="p.name && p.name.toLowerCase().includes('vanusa')">
+                  <img src="assets/vanusaIII.png" alt="Vanusa Ericeira" class="h-11 w-11 rounded-full object-cover border border-pink-300 shadow-xs shrink-0"/>
+                </template>
+                <template x-if="!p.name || !p.name.toLowerCase().includes('vanusa')">
+                  <div class="h-11 w-11 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border"
+                       :class="form.professional?.id === p.id ? 'bg-pink-500 text-white border-pink-400' : 'bg-pink-100 text-pink-700 border-pink-200'">
+                    <span x-text="p.name ? p.name.charAt(0).toUpperCase() : '?'"></span>
+                  </div>
+                </template>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5">
+                    <h3 class="text-xs sm:text-sm font-bold text-gray-900 truncate" x-text="p.name"></h3>
+                    <span x-show="form.professional?.id === p.id" class="text-[9px] font-bold bg-pink-600 text-white px-1.5 py-0.5 rounded-full">Escolhido</span>
+                  </div>
+                  <p class="text-[11px] text-gray-500 truncate" x-text="p.specialty || 'Especialista'"></p>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <!-- Card Único em Destaque (quando há apenas 1 profissional) -->
+          <div x-show="professionals.length === 1" class="bg-gradient-to-r from-pink-50/70 to-rose-50/40 rounded-2xl p-3.5 border border-pink-100 flex items-center gap-3.5">
+            <template x-if="form.professional?.name && form.professional.name.toLowerCase().includes('vanusa')">
+              <img src="assets/vanusaIII.png" alt="Vanusa Ericeira" class="h-12 w-12 rounded-full object-cover border-2 border-pink-300 shadow-sm shrink-0"/>
+            </template>
+            <template x-if="!form.professional?.name || !form.professional.name.toLowerCase().includes('vanusa')">
+              <div class="h-12 w-12 rounded-full bg-pink-500 text-white font-bold text-base flex items-center justify-center border-2 border-pink-300 shadow-sm shrink-0">
+                <span x-text="form.professional?.name ? form.professional.name.charAt(0).toUpperCase() : '?'"></span>
+              </div>
+            </template>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <h2 class="text-sm font-bold text-gray-900 truncate" x-text="form.professional?.name || 'Profissional'"></h2>
+                <span class="inline-flex items-center gap-1 text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Disponível
+                </span>
+              </div>
+              <p class="text-xs text-gray-500 truncate" x-text="form.professional?.specialty || 'Designer & Micropigmentadora'"></p>
             </div>
-            <p class="text-xs text-gray-500 truncate" x-text="form.professional?.specialty || 'Designer & Micropigmentadora'"></p>
           </div>
         </div>
 

@@ -9,7 +9,7 @@ function profissionaisApp() {
       whatsapp: '',
       email: '',
       specialty: '',
-      active: 1,
+      active: true,
       create_user: false,
       password: '',
       user_role: 'professional',
@@ -85,7 +85,7 @@ function profissionaisApp() {
           whatsapp: p.whatsapp || '',
           email: p.email || '',
           specialty: p.specialty || '',
-          active: p.active !== undefined ? parseInt(p.active) : 1,
+          active: p.active === 1 || p.active === '1' || p.active === true,
         }))
       } catch (error) {
         console.error('Erro ao buscar profissionais:', error)
@@ -99,7 +99,7 @@ function profissionaisApp() {
         whatsapp: '',
         email: '',
         specialty: '',
-        active: 1,
+        active: true,
         create_user: false,
         password: '',
         user_role: 'professional',
@@ -115,7 +115,7 @@ function profissionaisApp() {
         whatsapp: p.whatsapp || '',
         email: p.email || '',
         specialty: p.specialty || '',
-        active: p.active !== undefined ? parseInt(p.active) : 1,
+        active: p.active === 1 || p.active === '1' || p.active === true,
         create_user: !!p.user_id,
         password: '',
         user_role: 'professional',

@@ -163,7 +163,7 @@
             <input type="text" x-model="formProfessional.specialty" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:appearance-none focus:border-none focus:outline-none focus:outline-offset-0 focus:outline-pink-600" placeholder="Ex: Designer & Micropigmentação"/>
           </div>
           <div class="flex items-center gap-2 pt-1">
-            <input type="checkbox" id="prof-active" x-model="formProfessional.active" class="rounded border-gray-300 text-pink-600 focus:ring-pink-500"/>
+            <input type="checkbox" id="prof-active" x-model="formProfessional.active" :checked="Boolean(formProfessional.active)" class="rounded border-gray-300 text-pink-600 focus:ring-pink-500 w-4 h-4 cursor-pointer"/>
             <label for="prof-active" class="text-xs font-semibold text-gray-700 cursor-pointer">Profissional Ativo para Agendamentos</label>
           </div>
 
