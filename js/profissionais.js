@@ -16,14 +16,58 @@ function profissionaisApp() {
     },
     errors: {},
 
+    professionalSearch: '',
+    statusFilter: 'all',
+    pageSize: 15,
+    displayedCount: 15,
+
     async init() {
       if (!localStorage.getItem('jwtToken')) {
         window.location.href = 'login.html'
         return
       }
+
+      this.$watch('professionalSearch', () => {
+        this.displayedCount = this.pageSize
+      })
+      this.$watch('statusFilter', () => {
+        this.displayedCount = this.pageSize
+      })
+
       this.loading = true
       await this.fetchProfessionals()
       this.loading = false
+    },
+
+    filteredProfessionals() {
+      return this.professionals.filter(p => {
+        if (this.statusFilter === 'active' && !p.active) return false
+        if (this.statusFilter === 'inactive' && p.active) return false
+
+        const q = (this.professionalSearch || '').toLowerCase().trim()
+        if (!q) return true
+
+        return (
+          (p.name && p.name.toLowerCase().includes(q)) ||
+          (p.whatsapp && p.whatsapp.includes(q)) ||
+          (p.email && p.email.toLowerCase().includes(q)) ||
+          (p.specialty && p.specialty.toLowerCase().includes(q))
+        )
+      })
+    },
+
+    paginatedProfessionals() {
+      return this.filteredProfessionals().slice(0, this.displayedCount)
+    },
+
+    hasMoreProfessionals() {
+      return this.displayedCount < this.filteredProfessionals().length
+    },
+
+    loadMoreProfessionals() {
+      if (this.hasMoreProfessionals()) {
+        this.displayedCount += this.pageSize
+      }
     },
 
     async fetchProfessionals() {
@@ -132,6 +176,56 @@ function profissionaisApp() {
       } catch (error) {
         console.error('Erro ao salvar profissional:', error)
         showToast('Erro ao salvar profissional')
+      }
+    },
+
+    async deleteProfessional(p) {
+      if (!p || !p.id) return
+
+      const confirmMsg = `Deseja realmente remover ou inativar "${p.name}"?\n\n` +
+        `• Se possuir histórico de agendamentos ou atendimentos, o(a) profissional será desativado(a) com segurança para preservar os relatórios financeiros e dados de clientes.\n` +
+        `• Se não possuir nenhum atendimento registrado, será excluído(a) definitivamente.`
+
+      if (!confirm(confirmMsg)) return
+
+      this.loading = true
+      try {
+        const response = await fetch(
+          getUrlBase()[getEnv()] + `/json/api/v1/professionals/${p.id}`,
+          {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              ...getAuthHeaders(),
+            },
+          }
+        )
+
+        if (handleAuthError(response)) return
+
+        const res = await response.json()
+
+        if (!response.ok) {
+          showToast('Erro: ' + (res.error || 'Falha ao processar exclusão'), 'error')
+          return
+        }
+
+        if (res.action === 'deactivated') {
+          showToast(res.message || 'Profissional desativado com segurança.', 'warning')
+        } else {
+          showToast(res.message || 'Profissional excluído definitivamente.', 'success')
+        }
+
+        if (typeof invalidateCache === 'function') {
+          invalidateCache('professionals')
+        }
+
+        await this.fetchProfessionals()
+      } catch (error) {
+        console.error('Erro ao excluir profissional:', error)
+        showToast('Erro de conexão ao tentar excluir profissional.', 'error')
+      } finally {
+        this.loading = false
       }
     },
   }

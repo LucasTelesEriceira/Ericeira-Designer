@@ -15,23 +15,7 @@
     <title>Acesso Administrativo — Ericeira Designer</title>
     <link href="tailwind_theme/tailwind.css" rel="stylesheet" type="text/css" data-pg-name="TailwindCSS"/>
     <script defer src="js/Alpine.js" data-pg-name="AlpineJs"></script>
-    <style>
-      [x-cloak] { display: none !important; }
-      body {
-        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      }
-      .brand-font {
-        font-family: 'Playfair Display', serif;
-      }
-      .ambient-glow {
-        background: radial-gradient(circle at 50% 20%, rgba(244, 114, 182, 0.18), rgba(251, 207, 232, 0.08) 45%, transparent 70%);
-      }
-      .card-glass {
-        background: rgba(255, 255, 255, 0.94);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-      }
-    </style>
+    <style>[x-cloak] { display: none !important; } body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; } .brand-font { font-family: 'Playfair Display', serif; } .ambient-glow { background: radial-gradient(circle at 50% 20%, rgba(244, 114, 182, 0.18), rgba(251, 207, 232, 0.08) 45%, transparent 70%); } .card-glass { background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }</style>
   </head>
 
   <body x-data="loginForm()" class="min-h-screen bg-gradient-to-br from-rose-50/60 via-gray-50 to-pink-50/70 text-gray-800 flex flex-col justify-between relative overflow-x-hidden selection:bg-pink-500 selection:text-white">
@@ -58,15 +42,14 @@
       <div class="w-full max-w-md">
         <div class="card-glass border border-pink-100/90 rounded-3xl p-7 sm:p-9 shadow-2xl shadow-pink-500/10 relative">
           <!-- Cabeçalho do Card -->
-          <div class="text-center mb-7">
-            <div class="mx-auto mb-4 h-16 w-16 rounded-2xl bg-gradient-to-br from-pink-500 via-rose-500 to-pink-600 p-0.5 shadow-lg shadow-pink-500/25 flex items-center justify-center transform hover:scale-105 transition-transform duration-300">
-              <div class="h-full w-full bg-white rounded-[14px] flex items-center justify-center p-2.5">
-                <img src="assets/Ericeira DesignerIII.svg" alt="Ericeira Designer" class="h-full w-full object-contain"/>
-              </div>
+          <div class="flex flex-col items-center mb-7 space-x-4 text-center">
+            <img src="assets/Ericeira%20DesignerIII.svg" alt="Ericeira Designer" class="h-full object-contain w-2/5" data-pg-alt-review="image"/>
+            <div>
+                <p class="font-medium mt-1 text-gray-500 text-left text-xs sm:text-sm">Painel de Gestão e Atendimento</p>
             </div>
 
-            <h1 class="brand-font text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">Ericeira Designer</h1>
-            <p class="text-xs sm:text-sm text-gray-500 mt-1 font-medium">Painel de Gestão e Atendimento</p>
+            
+            
           </div>
 
           <!-- Alerta de Bloqueio por Tentativas ou Mensagem de Erro -->
